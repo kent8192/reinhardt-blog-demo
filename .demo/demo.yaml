@@ -1,0 +1,502 @@
+$schema: https://demotime.show/demo-time.schema.json
+title: Reinhardt 15-min Full-stack (WASM frontend) Demo — Scenes 3–9
+description: >
+  Live-coding portion of the 15-minute Reinhardt full-stack demo. Scenes 1, 2,
+  10 are rendered separately as Manim animations (see ../source/manim.ipynb).
+  The goal of this script is to show a Rust full-stack framework build — a
+  REST API plus a WASM single-page frontend — in fifteen minutes. All paths
+  below use "fullstack_demo" as the scaffolded project root; replace with the
+  real path emitted by `reinhardt-admin startproject` in Scene 3 if different.
+version: 2
+timer: 15
+
+demos:
+  # =========================================================================
+  - title: "Scene 3: Scaffold project + posts app + frontend (2:30–4:00)"
+    description: Run startproject, add a posts app and a WASM frontend app, then tour the generated tree.
+    steps:
+      - action: executeTerminalCommand
+        command: reinhardt-admin --version
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 1500
+
+      - action: executeTerminalCommand
+        command: reinhardt-admin startproject fullstack_demo --with-frontend
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 2500
+
+      - action: executeTerminalCommand
+        command: cd fullstack_demo && reinhardt-admin startapp posts
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 2000
+
+      - action: open
+        path: fullstack_demo/src/lib.rs
+      - action: highlight
+        path: fullstack_demo/src/lib.rs
+        startPlaceholder: "#[app_config"
+        endPlaceholder: '"posts")]'
+        highlightWholeLine: true
+        zoom: 1.5
+      - action: waitForTimeout
+        timeout: 2500
+
+      - action: open
+        path: fullstack_demo/Cargo.toml
+      - action: highlight
+        path: fullstack_demo/Cargo.toml
+        startPlaceholder: reinhardt
+        endPlaceholder: '"frontend"] }'
+        highlightWholeLine: true
+        zoom: 1.5
+      - action: waitForTimeout
+        timeout: 3000
+
+  # =========================================================================
+  - title: "Scene 4: Define Post model (4:00–5:30)"
+    description: Type the Post struct in models.rs, then add a domain method via an ordinary impl block.
+    steps:
+      - action: open
+        path: fullstack_demo/src/apps/posts/models.rs
+      - action: insert
+        path: fullstack_demo/src/apps/posts/models.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+          use chrono::{DateTime, Utc};
+          use reinhardt::prelude::*;
+          use serde::{Deserialize, Serialize};
+
+          #[model(app_label = "posts", table_name = "posts")]
+          #[derive(Serialize, Deserialize)]
+          pub struct Post {
+              #[field(primary_key = true)]
+              pub id: i64,
+
+              #[field(max_length = 200)]
+              pub title: String,
+
+              #[field(max_length = 10000)]
+              pub body: String,
+
+              #[field(default = false)]
+              pub published: bool,
+
+              #[field(auto_now_add = true)]
+              pub created_at: DateTime<Utc>,
+          }
+      - action: save
+        path: fullstack_demo/src/apps/posts/models.rs
+      - action: waitForTimeout
+        timeout: 1200
+
+      - action: highlight
+        path: fullstack_demo/src/apps/posts/models.rs
+        startPlaceholder: "#[model"
+        endPlaceholder: '"posts")]'
+        zoom: 1.5
+      - action: waitForTimeout
+        timeout: 2500
+      - action: unselect
+        path: fullstack_demo/src/apps/posts/models.rs
+
+      # Delta-only: append impl Post { summary } after the struct is already there
+      - action: insert
+        path: fullstack_demo/src/apps/posts/models.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+
+          impl Post {
+              /// Short preview of the post body (first 140 chars).
+              pub fn summary(&self) -> String {
+                  self.body.chars().take(140).collect()
+              }
+          }
+      - action: save
+        path: fullstack_demo/src/apps/posts/models.rs
+
+  # =========================================================================
+  - title: "Scene 5: Migrations (5:30–6:30)"
+    description: makemigrations → migrate → verify schema.
+    steps:
+      - action: executeTerminalCommand
+        command: cargo run --bin manage makemigrations posts
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 2500
+
+      - action: open
+        path: fullstack_demo/migrations/0001_initial.rs
+      - action: highlight
+        path: fullstack_demo/migrations/0001_initial.rs
+        startPlaceholder: CreateTable
+        endPlaceholder: "}"
+        highlightWholeLine: true
+      - action: waitForTimeout
+        timeout: 2500
+
+      - action: executeTerminalCommand
+        command: cargo run --bin manage migrate
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 2000
+
+  # =========================================================================
+  - title: "Scene 6: Serializer + ViewSet (6:30–8:00)"
+    description: Author PostSerializer and PostViewSet so the JSON API is live.
+    steps:
+      - action: open
+        path: fullstack_demo/src/apps/posts/serializers.rs
+      - action: insert
+        path: fullstack_demo/src/apps/posts/serializers.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+          use super::models::Post;
+
+          #[derive(Clone, serde::Serialize, serde::Deserialize)]
+          pub struct PostSerializer {
+              #[serde(skip_deserializing)]
+              pub id: i64,
+              pub title: String,
+              pub body: String,
+              pub published: bool,
+              #[serde(skip_deserializing)]
+              pub created_at: chrono::DateTime<chrono::Utc>,
+          }
+
+          impl From<Post> for PostSerializer {
+              fn from(p: Post) -> Self {
+                  Self {
+                      id: p.id,
+                      title: p.title,
+                      body: p.body,
+                      published: p.published,
+                      created_at: p.created_at,
+                  }
+              }
+          }
+      - action: save
+        path: fullstack_demo/src/apps/posts/serializers.rs
+      - action: waitForTimeout
+        timeout: 1500
+
+      - action: open
+        path: fullstack_demo/src/apps/posts/views.rs
+      - action: insert
+        path: fullstack_demo/src/apps/posts/views.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+          use reinhardt::prelude::*;
+          use reinhardt::views::viewsets::{FilterConfig, OrderingConfig, PaginationConfig};
+          use super::{models::Post, serializers::PostSerializer};
+
+          #[reinhardt::viewset]
+          pub fn viewset() -> ModelViewSet<Post, PostSerializer> {
+              ModelViewSet::new("posts")
+                  .with_pagination(PaginationConfig::page_number(10, Some(100)))
+                  .with_filters(FilterConfig::new()
+                      .with_filterable_fields(vec!["published".into(), "title".into()]))
+                  .with_ordering(OrderingConfig::new()
+                      .with_ordering_fields(vec!["created_at".into(), "title".into()]))
+          }
+      - action: save
+        path: fullstack_demo/src/apps/posts/views.rs
+      - action: waitForTimeout
+        timeout: 2000
+
+  # =========================================================================
+  - title: "Scene 7: WASM frontend page (8:00–10:30)"
+    description: >
+      Write a typed server_fn RPC, then build a page!-based WASM page that
+      calls it via use_action. Same crate — reinhardt::pages compiles to
+      WebAssembly via the `frontend` feature.
+    steps:
+      # server_fn RPC on the server side (shared type boundary)
+      - action: open
+        path: fullstack_demo/src/apps/posts/server_fn.rs
+      - action: insert
+        path: fullstack_demo/src/apps/posts/server_fn.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+          use reinhardt::prelude::*;
+          use reinhardt::pages::ServerFnError;
+          use super::{models::Post, serializers::PostSerializer};
+
+          #[server_fn]
+          pub async fn list_posts(
+              #[inject] db: DatabaseConnection,
+          ) -> std::result::Result<Vec<PostSerializer>, ServerFnError> {
+              let rows = Post::objects().using(&db).all().await?;
+              Ok(rows.into_iter().map(PostSerializer::from).collect())
+          }
+      - action: save
+        path: fullstack_demo/src/apps/posts/server_fn.rs
+      - action: waitForTimeout
+        timeout: 1500
+
+      # Frontend page via the real page! macro + use_action
+      - action: open
+        path: fullstack_demo/src/pages/posts_page.rs
+      - action: insert
+        path: fullstack_demo/src/pages/posts_page.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+          use reinhardt::pages::prelude::*;
+          use crate::apps::posts::{serializers::PostSerializer, server_fn::list_posts};
+
+          pub fn posts_page() -> Page {
+              let load_posts = use_action(|_: ()| async move {
+                  list_posts().await.map_err(|e| e.to_string())
+              });
+              load_posts.dispatch(());
+              let ls = load_posts.clone();
+
+              page!(|ls: Action<Vec<PostSerializer>, String>| {
+                  section class: "posts" {
+                      h1 { "Posts" }
+                      {
+                          Page::Fragment(ls.result().unwrap_or_default().iter()
+                              .map(|p| page!(|title: String, body: String| {
+                                  li { h2 { { title } } p { { body } } }
+                              })(p.title.clone(), p.body.clone()))
+                              .collect::<Vec<_>>())
+                      }
+                  }
+              })(ls)
+          }
+      - action: save
+        path: fullstack_demo/src/pages/posts_page.rs
+      - action: waitForTimeout
+        timeout: 1500
+
+      - action: highlight
+        path: fullstack_demo/src/pages/posts_page.rs
+        startPlaceholder: "page!(|ls:"
+        endPlaceholder: "})(ls)"
+        zoom: 1.4
+      - action: waitForTimeout
+        timeout: 2500
+      - action: unselect
+        path: fullstack_demo/src/pages/posts_page.rs
+
+      # Register the page in the pages router
+      - action: open
+        path: fullstack_demo/src/pages/mod.rs
+      - action: insert
+        path: fullstack_demo/src/pages/mod.rs
+        startPlaceholder: "PagesRouter::new()\n"
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 30
+        content: "        .route(\"/\", posts_page::posts_page)\n"
+      - action: save
+        path: fullstack_demo/src/pages/mod.rs
+      - action: waitForTimeout
+        timeout: 1000
+
+      # Single command boots backend + trunk watcher for the WASM bundle
+      - action: executeTerminalCommand
+        command: cargo run --bin manage runserver --with-frontend
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 4000
+
+      - action: openWebsite
+        url: http://127.0.0.1:8000/
+      - action: waitForTimeout
+        timeout: 6000
+
+  # =========================================================================
+  - title: "Scene 8: Admin UI (10:30–12:00)"
+    description: Declare PostAdmin, create a superuser, tour /admin/ in the browser.
+    steps:
+      - action: open
+        path: fullstack_demo/src/apps/posts/admin.rs
+      - action: insert
+        path: fullstack_demo/src/apps/posts/admin.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+          use reinhardt::prelude::*;
+          use super::models::Post;
+
+          #[admin(model = Post, list_display = [id, title, published, created_at])]
+          pub struct PostAdmin;
+      - action: save
+        path: fullstack_demo/src/apps/posts/admin.rs
+      - action: waitForTimeout
+        timeout: 1500
+
+      - action: executeTerminalCommand
+        command: cargo run --bin manage createsuperuser
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 3000
+
+      - action: openWebsite
+        url: http://127.0.0.1:8000/admin/
+      - action: waitForTimeout
+        timeout: 8000
+
+  # =========================================================================
+  - title: "Scene 9: Auth settings + DI factory + server_fn (12:00–13:30)"
+    description: >
+      Compose AuthSettings into ProjectSettings via #[settings], register
+      PostRepository via #[injectable_factory], then expose a publish_post
+      #[server_fn] callable from both curl and the WASM frontend.
+    steps:
+      # AuthSettings fragment and ProjectSettings composition
+      - action: open
+        path: fullstack_demo/src/config/settings.rs
+      - action: insert
+        path: fullstack_demo/src/config/settings.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+
+          use reinhardt::prelude::*;
+          use reinhardt_auth::rest_authentication::TokenAuthConfig;
+
+          #[settings(fragment = true)]
+          pub struct AuthSettings {
+              pub token: TokenAuthConfig,
+          }
+
+          #[settings(core: CoreSettings, auth: AuthSettings)]
+          pub struct ProjectSettings;
+      - action: save
+        path: fullstack_demo/src/config/settings.rs
+      - action: waitForTimeout
+        timeout: 1500
+
+      # PostRepository via #[injectable_factory]
+      - action: open
+        path: fullstack_demo/src/apps/posts/repositories.rs
+      - action: insert
+        path: fullstack_demo/src/apps/posts/repositories.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+          use reinhardt::prelude::*;
+          use super::models::Post;
+
+          pub struct PostRepository { db: DatabaseConnection }
+
+          impl PostRepository {
+              pub async fn get(&self, id: i64) -> Result<Post, DbError> {
+                  Post::objects().using(&self.db).get(id).await
+              }
+              pub async fn save(&self, post: &Post) -> Result<Post, DbError> {
+                  Post::objects().using(&self.db).save(post).await
+              }
+          }
+
+          #[injectable_factory]
+          pub async fn post_repository(
+              #[inject] db: DatabaseConnection,
+          ) -> PostRepository {
+              PostRepository { db }
+          }
+      - action: save
+        path: fullstack_demo/src/apps/posts/repositories.rs
+      - action: waitForTimeout
+        timeout: 1500
+
+      # publish_post #[server_fn] using AuthUser<User> + PostRepository
+      - action: open
+        path: fullstack_demo/src/apps/posts/server_fn.rs
+      - action: insert
+        path: fullstack_demo/src/apps/posts/server_fn.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+
+          use reinhardt_auth::AuthUser;
+          use crate::users::User;
+          use super::repositories::PostRepository;
+
+          #[server_fn]
+          pub async fn publish_post(
+              id: i64,
+              #[inject] AuthUser(user): AuthUser<User>,
+              #[inject] posts: PostRepository,
+          ) -> std::result::Result<PostSerializer, ServerFnError> {
+              let mut post = posts.get(id).await?;
+              post.publish_by(&user)?;
+              let saved = posts.save(&post).await?;
+              Ok(PostSerializer::from(saved))
+          }
+      - action: save
+        path: fullstack_demo/src/apps/posts/server_fn.rs
+      - action: waitForTimeout
+        timeout: 1500
+
+      - action: highlight
+        path: fullstack_demo/src/apps/posts/server_fn.rs
+        startPlaceholder: "#[inject]"
+        endPlaceholder: "posts: PostRepository,"
+        zoom: 1.8
+      - action: waitForTimeout
+        timeout: 2500
+      - action: unselect
+        path: fullstack_demo/src/apps/posts/server_fn.rs
+
+      # Frontend wiring: call publish_post via use_action from the existing page
+      - action: open
+        path: fullstack_demo/src/pages/posts_page.rs
+      - action: insert
+        path: fullstack_demo/src/pages/posts_page.rs
+        startPlaceholder: "load_posts.dispatch(());\n"
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 30
+        content: |2
+              let publish = use_action(|id: i64| async move {
+                  crate::apps::posts::server_fn::publish_post(id).await
+                      .map_err(|e| e.to_string())
+              });
+      - action: save
+        path: fullstack_demo/src/pages/posts_page.rs
+      - action: waitForTimeout
+        timeout: 2000
+
+      - action: executeTerminalCommand
+        terminalId: curl
+        command: curl -i http://127.0.0.1:8000/_server_fn/publish_post -d '{"id":1}' -H 'Content-Type: application/json'
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 40
+      - action: waitForTimeout
+        timeout: 2000
+
+      - action: executeTerminalCommand
+        terminalId: curl
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 40
+        command: >-
+          curl -i -X POST -H "Authorization: Bearer $TOKEN"
+          http://127.0.0.1:8000/_server_fn/publish_post -d '{"id":1}' -H 'Content-Type: application/json'
+      - action: waitForTimeout
+        timeout: 2500
