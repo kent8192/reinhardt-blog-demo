@@ -511,7 +511,7 @@ pub struct PublishInput {
 }
 ```
 
-- (13:00-13:20) In `src/apps/posts/server_fn.rs`, add the publish RPC. `#[server_fn(pre_validate = true)]` automatically calls `PublishInput::validate()` before the body runs — invalid input returns 400 without reaching application code. `Guard<IsActiveUser>` enforces authorization — inactive users get 403:
+- (13:00-13:20) In `src/apps/posts/server_fn.rs`, add the publish RPC. `#[server_fn(pre_validate = true)]` auto-calls `.validate()` on `input` before the handler runs — invalid input returns 400 without reaching application code. `Guard<IsActiveUser>` enforces authorization — inactive users get 403:
 
 ```rust
 use reinhardt::prelude::*;
@@ -550,7 +550,7 @@ let publish = use_action(|id: i64| async move {
 > (12:25) `AuthSettings` is a `#[settings]` fragment composed into `ProjectSettings` — token auth turned on, no globals.
 > (12:38) `PostRepository` is registered with `#[injectable_factory]`. One async function describes how to build it; the container does the rest.
 > (12:50) `PublishInput` carries a validated id — `#[validate(range(min = 1))]` keeps invalid calls from ever reaching the database.
-> (13:00) `pre_validate = true` on `#[server_fn]` calls `validate()` automatically. No boilerplate, no forgotten checks.
+> (13:00) `pre_validate = true` on the `#[server_fn]` attribute calls `.validate()` automatically. No boilerplate, no forgotten checks.
 > (13:08) `Guard<IsActiveUser>` is injected alongside the user — inactive accounts get 403 before the body runs.
 > (13:18) No token: 401. Inactive user: 403. Valid active token: 200.
 > (13:28) Declarative to write, statically enforced. That's the Reinhardt way.
