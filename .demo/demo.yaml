@@ -1,18 +1,10 @@
-$schema: https://demotime.show/demo-time.schema.json
-title: Reinhardt 15-min Full-stack (WASM frontend) Demo — Scenes 3–9
-description: >
-  Live-coding portion of the 15-minute Reinhardt full-stack demo. Scenes 1, 2,
-  10 are rendered separately as Manim animations (see ../source/manim.ipynb).
-  The goal of this script is to show a Rust full-stack framework build — a
-  REST API plus a WASM single-page frontend — in fifteen minutes. All paths
-  below use "fullstack_demo" as the scaffolded project root; replace with the
-  real path emitted by `reinhardt-admin startproject` in Scene 3 if different.
+title: Reinhardt Demo
+description: |
+  Live-coding portion of the 15-minute Reinhardt full-stack demo. Scenes 1, 2, 10 are rendered separately as Manim animations (see ../source/manim.ipynb). The goal of this script is to show a Rust full-stack framework build — a REST API plus a WASM single-page frontend — in fifteen minutes. All paths below use "fullstack_demo" as the scaffolded project root; replace with the real path emitted by `reinhardt-admin startproject` in Scene 3 if different.
 version: 2
 timer: 15
-
 demos:
-  # =========================================================================
-  - title: "Scene 3: Scaffold project + posts app + frontend (2:30–4:00)"
+  - title: 'Scene 3: Scaffold project + posts app + frontend (2:30–4:00)'
     description: Run startproject, add a posts app and a WASM frontend app, then tour the generated tree.
     steps:
       - action: executeTerminalCommand
@@ -21,32 +13,28 @@ demos:
         insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 1500
-
       - action: executeTerminalCommand
         command: reinhardt-admin startproject fullstack_demo --with-pages
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 2500
-
       - action: executeTerminalCommand
         command: cd fullstack_demo && reinhardt-admin startapp posts
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 2000
-
       - action: open
         path: fullstack_demo/src/lib.rs
       - action: highlight
         path: fullstack_demo/src/lib.rs
-        startPlaceholder: "#[app_config"
+        startPlaceholder: '#[app_config'
         endPlaceholder: '"posts")]'
         highlightWholeLine: true
         zoom: 1.5
       - action: waitForTimeout
         timeout: 2500
-
       - action: open
         path: fullstack_demo/Cargo.toml
       - action: highlight
@@ -57,8 +45,6 @@ demos:
         zoom: 1.5
       - action: waitForTimeout
         timeout: 3000
-
-      # local.toml — local environment overrides (never committed)
       - action: open
         path: fullstack_demo/local.toml
       - action: insert
@@ -80,9 +66,7 @@ demos:
         path: fullstack_demo/local.toml
       - action: waitForTimeout
         timeout: 2000
-
-  # =========================================================================
-  - title: "Scene 4: Define Post model (4:00–5:30)"
+  - title: 'Scene 4: Define Post model (4:00–5:30)'
     description: Type the Post struct in models.rs, then add a domain method via an ordinary impl block.
     steps:
       - action: open
@@ -119,18 +103,15 @@ demos:
         path: fullstack_demo/src/apps/posts/models.rs
       - action: waitForTimeout
         timeout: 1200
-
       - action: highlight
         path: fullstack_demo/src/apps/posts/models.rs
-        startPlaceholder: "#[model"
+        startPlaceholder: '#[model'
         endPlaceholder: '"posts")]'
         zoom: 1.5
       - action: waitForTimeout
         timeout: 2500
       - action: unselect
         path: fullstack_demo/src/apps/posts/models.rs
-
-      # Delta-only: append impl Post { summary } after the struct is already there
       - action: insert
         path: fullstack_demo/src/apps/posts/models.rs
         position: end
@@ -146,8 +127,6 @@ demos:
           }
       - action: save
         path: fullstack_demo/src/apps/posts/models.rs
-
-      # User model — #[user] replaces the manual impl BaseUser block
       - action: open
         path: fullstack_demo/src/users.rs
       - action: insert
@@ -182,9 +161,7 @@ demos:
         path: fullstack_demo/src/users.rs
       - action: waitForTimeout
         timeout: 1200
-
-  # =========================================================================
-  - title: "Scene 5: Migrations (5:30–6:30)"
+  - title: 'Scene 5: Migrations (5:30–6:30)'
     description: makemigrations → migrate → verify schema.
     steps:
       - action: executeTerminalCommand
@@ -193,26 +170,22 @@ demos:
         insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 2500
-
       - action: open
         path: fullstack_demo/migrations/0001_initial.rs
       - action: highlight
         path: fullstack_demo/migrations/0001_initial.rs
         startPlaceholder: CreateTable
-        endPlaceholder: "}"
+        endPlaceholder: '}'
         highlightWholeLine: true
       - action: waitForTimeout
         timeout: 2500
-
       - action: executeTerminalCommand
         command: cargo run --bin manage migrate
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 2000
-
-  # =========================================================================
-  - title: "Scene 6: Serializer + ViewSet (6:30–8:00)"
+  - title: 'Scene 6: Serializer + ViewSet (6:30–8:00)'
     description: Author PostSerializer and PostViewSet so the JSON API is live.
     steps:
       - action: open
@@ -261,7 +234,6 @@ demos:
         path: fullstack_demo/src/apps/posts/serializers.rs
       - action: waitForTimeout
         timeout: 1500
-
       - action: open
         path: fullstack_demo/src/apps/posts/views.rs
       - action: insert
@@ -287,15 +259,10 @@ demos:
         path: fullstack_demo/src/apps/posts/views.rs
       - action: waitForTimeout
         timeout: 2000
-
-  # =========================================================================
-  - title: "Scene 7: WASM frontend page (8:00–10:30)"
-    description: >
-      Write a typed server_fn RPC, then build a page!-based WASM page that
-      calls it via use_action. Same crate — reinhardt::pages compiles to
-      WebAssembly via the `frontend` feature.
+  - title: 'Scene 7: WASM frontend page (8:00–10:30)'
+    description: |
+      Write a typed server_fn RPC, then build a page!-based WASM page that calls it via use_action. Same crate — reinhardt::pages compiles to WebAssembly via the `frontend` feature.
     steps:
-      # server_fn RPC on the server side (shared type boundary)
       - action: open
         path: fullstack_demo/src/apps/posts/server_fn.rs
       - action: insert
@@ -319,8 +286,6 @@ demos:
         path: fullstack_demo/src/apps/posts/server_fn.rs
       - action: waitForTimeout
         timeout: 1500
-
-      # Frontend page via the real page! macro + use_action
       - action: open
         path: fullstack_demo/src/pages/posts_page.rs
       - action: insert
@@ -356,46 +321,40 @@ demos:
         path: fullstack_demo/src/pages/posts_page.rs
       - action: waitForTimeout
         timeout: 1500
-
       - action: highlight
         path: fullstack_demo/src/pages/posts_page.rs
-        startPlaceholder: "page!(|ls:"
-        endPlaceholder: "})(ls)"
+        startPlaceholder: 'page!(|ls:'
+        endPlaceholder: '})(ls)'
         zoom: 1.4
       - action: waitForTimeout
         timeout: 2500
       - action: unselect
         path: fullstack_demo/src/pages/posts_page.rs
-
-      # Register the page in the pages router
       - action: open
         path: fullstack_demo/src/pages/mod.rs
       - action: insert
         path: fullstack_demo/src/pages/mod.rs
-        startPlaceholder: "PagesRouter::new()\n"
+        startPlaceholder: |
+          PagesRouter::new()
         insertTypingMode: character-by-character
         insertTypingSpeed: 30
-        content: "        .route(\"/\", posts_page::posts_page)\n"
+        content: |2
+                  .route("/", posts_page::posts_page)
       - action: save
         path: fullstack_demo/src/pages/mod.rs
       - action: waitForTimeout
         timeout: 1000
-
-      # Single command boots backend + trunk watcher for the WASM bundle
       - action: executeTerminalCommand
         command: cargo run --bin manage runserver --with-pages
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 4000
-
       - action: openWebsite
         url: http://127.0.0.1:8000/
       - action: waitForTimeout
         timeout: 6000
-
-  # =========================================================================
-  - title: "Scene 8: Admin UI (10:30–12:00)"
+  - title: 'Scene 8: Admin UI (10:30–12:00)'
     description: Declare PostAdmin, create a superuser, tour /admin/ in the browser.
     steps:
       - action: open
@@ -415,27 +374,20 @@ demos:
         path: fullstack_demo/src/apps/posts/admin.rs
       - action: waitForTimeout
         timeout: 1500
-
       - action: executeTerminalCommand
         command: cargo run --bin manage createsuperuser
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 3000
-
       - action: openWebsite
         url: http://127.0.0.1:8000/admin/
       - action: waitForTimeout
         timeout: 8000
-
-  # =========================================================================
-  - title: "Scene 9: Auth settings + DI factory + server_fn (12:00–13:30)"
-    description: >
-      Compose AuthSettings into ProjectSettings via #[settings], register
-      PostRepository via #[injectable_factory], then expose a publish_post
-      #[server_fn] callable from both curl and the WASM frontend.
+  - title: 'Scene 9: Auth settings + DI factory + server_fn (12:00–13:30)'
+    description: |
+      Compose AuthSettings into ProjectSettings via #[settings], register PostRepository via #[injectable_factory], then expose a publish_post #[server_fn] callable from both curl and the WASM frontend.
     steps:
-      # AuthSettings fragment and ProjectSettings composition
       - action: open
         path: fullstack_demo/src/config/settings.rs
       - action: insert
@@ -459,8 +411,6 @@ demos:
         path: fullstack_demo/src/config/settings.rs
       - action: waitForTimeout
         timeout: 1500
-
-      # PostRepository via #[injectable_factory]
       - action: open
         path: fullstack_demo/src/apps/posts/repositories.rs
       - action: insert
@@ -494,8 +444,6 @@ demos:
         path: fullstack_demo/src/apps/posts/repositories.rs
       - action: waitForTimeout
         timeout: 1500
-
-      # PublishInput: validated input struct for publish_post
       - action: open
         path: fullstack_demo/src/apps/posts/serializers.rs
       - action: insert
@@ -514,9 +462,6 @@ demos:
         path: fullstack_demo/src/apps/posts/serializers.rs
       - action: waitForTimeout
         timeout: 1000
-
-      # publish_post: pre_validate auto-calls validate() on PublishInput;
-      # Guard<IsActiveUser> enforces authorization before the handler runs.
       - action: open
         path: fullstack_demo/src/apps/posts/server_fn.rs
       - action: insert
@@ -546,23 +491,21 @@ demos:
         path: fullstack_demo/src/apps/posts/server_fn.rs
       - action: waitForTimeout
         timeout: 1500
-
       - action: highlight
         path: fullstack_demo/src/apps/posts/server_fn.rs
-        startPlaceholder: "#[inject]"
-        endPlaceholder: "posts: PostRepository,"
+        startPlaceholder: '#[inject]'
+        endPlaceholder: 'posts: PostRepository,'
         zoom: 1.8
       - action: waitForTimeout
         timeout: 2500
       - action: unselect
         path: fullstack_demo/src/apps/posts/server_fn.rs
-
-      # Frontend wiring: call publish_post via use_action from the existing page
       - action: open
         path: fullstack_demo/src/pages/posts_page.rs
       - action: insert
         path: fullstack_demo/src/pages/posts_page.rs
-        startPlaceholder: "load_posts.dispatch(());\n"
+        startPlaceholder: |
+          load_posts.dispatch(());
         insertTypingMode: character-by-character
         insertTypingSpeed: 30
         content: |2
@@ -575,21 +518,17 @@ demos:
         path: fullstack_demo/src/pages/posts_page.rs
       - action: waitForTimeout
         timeout: 2000
-
       - action: executeTerminalCommand
         terminalId: curl
-        command: curl -i http://127.0.0.1:8000/_server_fn/publish_post -d '{"id":1}' -H 'Content-Type: application/json'
+        command: 'curl -i http://127.0.0.1:8000/_server_fn/publish_post -d ''{"id":1}'' -H ''Content-Type: application/json'''
         insertTypingMode: character-by-character
         insertTypingSpeed: 40
       - action: waitForTimeout
         timeout: 2000
-
       - action: executeTerminalCommand
         terminalId: curl
         insertTypingMode: character-by-character
         insertTypingSpeed: 40
-        command: >-
-          curl -i -X POST -H "Authorization: Bearer $TOKEN"
-          http://127.0.0.1:8000/_server_fn/publish_post -d '{"id":1}' -H 'Content-Type: application/json'
+        command: 'curl -i -X POST -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8000/_server_fn/publish_post -d ''{"id":1}'' -H ''Content-Type: application/json'''
       - action: waitForTimeout
         timeout: 2500
