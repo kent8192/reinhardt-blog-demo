@@ -208,15 +208,21 @@ demos:
               pub created_at: chrono::DateTime<chrono::Utc>,
           }
 
-          impl From<Post> for PostSerializer {
-              fn from(p: Post) -> Self {
-                  Self {
+          // TryFrom validates constraints before the serializer leaves the service layer,
+          // preventing invalid data from reaching the wire even when sourced from the DB.
+          impl TryFrom<Post> for PostSerializer {
+              type Error = ValidationErrors;
+
+              fn try_from(p: Post) -> Result<Self, Self::Error> {
+                  let s = Self {
                       id: p.id,
                       title: p.title,
                       body: p.body,
                       published: p.published,
                       created_at: p.created_at,
-                  }
+                  };
+                  s.validate()?;
+                  Ok(s)
               }
           }
       - action: save
@@ -275,7 +281,10 @@ demos:
               #[inject] db: DatabaseConnection,
           ) -> std::result::Result<Vec<PostSerializer>, ServerFnError> {
               let rows = Post::objects().using(&db).all().await?;
-              Ok(rows.into_iter().map(PostSerializer::from).collect())
+              rows.into_iter()
+                  .map(PostSerializer::try_from)
+                  .collect::<Result<Vec<_>, _>>()
+                  .map_err(|e| ServerFnError::Application(e.to_string()))
           }
       - action: save
         path: fullstack_demo/src/apps/posts/server_fn.rs
@@ -480,7 +489,8 @@ demos:
               let mut post = posts.get(id).await?;
               post.publish_by(&user)?;
               posts.save(&mut post).await?;
-              Ok(PostSerializer::from(post))
+              PostSerializer::try_from(post)
+                  .map_err(|e| ServerFnError::Application(e.to_string()))
           }
       - action: save
         path: fullstack_demo/src/apps/posts/server_fn.rs
