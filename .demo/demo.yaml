@@ -147,7 +147,7 @@ demos:
       - action: save
         path: fullstack_demo/src/apps/posts/models.rs
 
-      # User model — BaseUser implementation required for reinhardt_auth
+      # User model — #[user] replaces the manual impl BaseUser block
       - action: open
         path: fullstack_demo/src/users.rs
       - action: insert
@@ -157,9 +157,10 @@ demos:
         insertTypingSpeed: 25
         content: |
           use reinhardt::prelude::*;
-          use reinhardt_auth::{BaseUser, hasher::Argon2Hasher};
+          use reinhardt_auth::hasher::Argon2Hasher;
           use serde::{Deserialize, Serialize};
 
+          #[user(hasher = Argon2Hasher, username_field = "email")]
           #[model(app_label = "users", table_name = "auth_user")]
           #[derive(Serialize, Deserialize)]
           pub struct User {
@@ -172,22 +173,10 @@ demos:
               #[field(max_length = 255, unique = true)]
               pub email: String,
 
-              #[field(max_length = 255)]
               pub password_hash: Option<String>,
 
               #[field(default = true)]
               pub is_active: bool,
-          }
-
-          impl BaseUser for User {
-              type PrimaryKey = i64;
-              type Hasher = Argon2Hasher;
-
-              fn get_username_field() -> &'static str { "email" }
-              fn get_username(&self) -> &str { &self.email }
-              fn password_hash(&self) -> Option<&str> { self.password_hash.as_deref() }
-              fn set_password_hash(&mut self, hash: String) { self.password_hash = Some(hash); }
-              fn is_active(&self) -> bool { self.is_active }
           }
       - action: save
         path: fullstack_demo/src/users.rs
