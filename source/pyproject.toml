@@ -8,4 +8,5 @@ dependencies = [
     "moviepy>=2.2.1",
     "elevenlabs>=1.0.0",
     "pyyaml>=6.0",
+    "ipykernel>=6.0",
 ]
