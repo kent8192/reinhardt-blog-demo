@@ -147,6 +147,53 @@ demos:
       - action: save
         path: fullstack_demo/src/apps/posts/models.rs
 
+      # User model — BaseUser implementation required for reinhardt_auth
+      - action: open
+        path: fullstack_demo/src/users.rs
+      - action: insert
+        path: fullstack_demo/src/users.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+          use reinhardt::prelude::*;
+          use reinhardt_auth::{BaseUser, hasher::Argon2Hasher};
+          use serde::{Deserialize, Serialize};
+
+          #[model(app_label = "users", table_name = "auth_user")]
+          #[derive(Serialize, Deserialize)]
+          pub struct User {
+              #[field(primary_key = true)]
+              pub id: i64,
+
+              #[field(max_length = 150, unique = true)]
+              pub username: String,
+
+              #[field(max_length = 255, unique = true)]
+              pub email: String,
+
+              #[field(max_length = 255)]
+              pub password_hash: Option<String>,
+
+              #[field(default = true)]
+              pub is_active: bool,
+          }
+
+          impl BaseUser for User {
+              type PrimaryKey = i64;
+              type Hasher = Argon2Hasher;
+
+              fn get_username_field() -> &'static str { "email" }
+              fn get_username(&self) -> &str { &self.email }
+              fn password_hash(&self) -> Option<&str> { self.password_hash.as_deref() }
+              fn set_password_hash(&mut self, hash: String) { self.password_hash = Some(hash); }
+              fn is_active(&self) -> bool { self.is_active }
+          }
+      - action: save
+        path: fullstack_demo/src/users.rs
+      - action: waitForTimeout
+        timeout: 1200
+
   # =========================================================================
   - title: "Scene 5: Migrations (5:30–6:30)"
     description: makemigrations → migrate → verify schema.
@@ -208,21 +255,17 @@ demos:
               pub created_at: chrono::DateTime<chrono::Utc>,
           }
 
-          // TryFrom validates constraints before the serializer leaves the service layer,
-          // preventing invalid data from reaching the wire even when sourced from the DB.
-          impl TryFrom<Post> for PostSerializer {
-              type Error = ValidationErrors;
-
-              fn try_from(p: Post) -> Result<Self, Self::Error> {
-                  let s = Self {
+          // From<Post> covers the read path (DB → response).
+          // Input validation is handled by pre_validate on #[server_fn].
+          impl From<Post> for PostSerializer {
+              fn from(p: Post) -> Self {
+                  Self {
                       id: p.id,
                       title: p.title,
                       body: p.body,
                       published: p.published,
                       created_at: p.created_at,
-                  };
-                  s.validate()?;
-                  Ok(s)
+                  }
               }
           }
       - action: save
@@ -281,10 +324,7 @@ demos:
               #[inject] db: DatabaseConnection,
           ) -> std::result::Result<Vec<PostSerializer>, ServerFnError> {
               let rows = Post::objects().using(&db).all().await?;
-              rows.into_iter()
-                  .map(PostSerializer::try_from)
-                  .collect::<Result<Vec<_>, _>>()
-                  .map_err(|e| ServerFnError::Application(e.to_string()))
+              Ok(rows.into_iter().map(PostSerializer::from).collect())
           }
       - action: save
         path: fullstack_demo/src/apps/posts/server_fn.rs
@@ -466,7 +506,28 @@ demos:
       - action: waitForTimeout
         timeout: 1500
 
-      # publish_post #[server_fn] using AuthUser<User> + PostRepository
+      # PublishInput: validated input struct for publish_post
+      - action: open
+        path: fullstack_demo/src/apps/posts/serializers.rs
+      - action: insert
+        path: fullstack_demo/src/apps/posts/serializers.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+
+          #[derive(serde::Deserialize, Validate)]
+          pub struct PublishInput {
+              #[validate(range(min = 1, message = "id must be a positive integer"))]
+              pub id: i64,
+          }
+      - action: save
+        path: fullstack_demo/src/apps/posts/serializers.rs
+      - action: waitForTimeout
+        timeout: 1000
+
+      # publish_post: pre_validate auto-calls validate() on PublishInput;
+      # Guard<IsActiveUser> enforces authorization before the handler runs.
       - action: open
         path: fullstack_demo/src/apps/posts/server_fn.rs
       - action: insert
@@ -476,21 +537,21 @@ demos:
         insertTypingSpeed: 25
         content: |
 
-          use reinhardt_auth::AuthUser;
+          use reinhardt_auth::{AuthUser, guard::{Guard, IsActiveUser}};
           use crate::users::User;
-          use super::repositories::PostRepository;
+          use super::{repositories::PostRepository, serializers::PublishInput};
 
-          #[server_fn]
+          #[server_fn(pre_validate = true)]
           pub async fn publish_post(
-              id: i64,
+              input: PublishInput,
               #[inject] AuthUser(user): AuthUser<User>,
+              #[inject] _: Guard<IsActiveUser>,
               #[inject] posts: PostRepository,
           ) -> std::result::Result<PostSerializer, ServerFnError> {
-              let mut post = posts.get(id).await?;
+              let mut post = posts.get(input.id).await?;
               post.publish_by(&user)?;
               posts.save(&mut post).await?;
-              PostSerializer::try_from(post)
-                  .map_err(|e| ServerFnError::Application(e.to_string()))
+              Ok(PostSerializer::from(post))
           }
       - action: save
         path: fullstack_demo/src/apps/posts/server_fn.rs
@@ -517,8 +578,9 @@ demos:
         insertTypingSpeed: 30
         content: |2
               let publish = use_action(|id: i64| async move {
-                  crate::apps::posts::server_fn::publish_post(id).await
-                      .map_err(|e| e.to_string())
+                  crate::apps::posts::server_fn::publish_post(
+                      crate::apps::posts::serializers::PublishInput { id },
+                  ).await.map_err(|e| e.to_string())
               });
       - action: save
         path: fullstack_demo/src/pages/posts_page.rs
