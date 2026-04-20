@@ -164,6 +164,7 @@ demos:
         insertTypingMode: character-by-character
         insertTypingSpeed: 25
         content: |
+          use reinhardt::prelude::*;
           use super::models::Post;
 
           #[derive(Clone, serde::Serialize, serde::Deserialize)]
@@ -406,11 +407,12 @@ demos:
           pub struct PostRepository { db: DatabaseConnection }
 
           impl PostRepository {
-              pub async fn get(&self, id: i64) -> Result<Post, DbError> {
+              // Result<T> uses reinhardt's Error alias from prelude
+              pub async fn get(&self, id: i64) -> Result<Post> {
                   Post::objects().using(&self.db).get(id).await
               }
-              pub async fn save(&self, post: &Post) -> Result<Post, DbError> {
-                  Post::objects().using(&self.db).save(post).await
+              pub async fn save(&self, post: &mut Post) -> Result<()> {
+                  post.save().await
               }
           }
 
@@ -447,8 +449,8 @@ demos:
           ) -> std::result::Result<PostSerializer, ServerFnError> {
               let mut post = posts.get(id).await?;
               post.publish_by(&user)?;
-              let saved = posts.save(&post).await?;
-              Ok(PostSerializer::from(saved))
+              posts.save(&mut post).await?;
+              Ok(PostSerializer::from(post))
           }
       - action: save
         path: fullstack_demo/src/apps/posts/server_fn.rs
