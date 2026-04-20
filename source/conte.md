@@ -93,7 +93,7 @@
 **Screen composition**:
 
 - (2:30-2:45) Full-screen Terminal (clean zsh prompt). Sanity-check the install with `reinhardt-admin --version` (`reinhardt-admin 0.1.0`)
-- (2:45-3:10) Type and run `reinhardt-admin startproject fullstack_demo --with-frontend`. The generated file tree prints out; highlight `manage.rs`, `Cargo.toml`, `src/`, `src/frontend/`, `config/`
+- (2:45-3:10) Type and run `reinhardt-admin startproject fullstack_demo --with-pages`. The generated file tree prints out; highlight `manage.rs`, `Cargo.toml`, `src/`, `src/frontend/`, `config/`
 - (3:10-3:30) `cd fullstack_demo && reinhardt-admin startapp posts`. Under `src/apps/posts/`, `models.rs`, `serializers.rs`, `views.rs`, `urls.rs` appear
 - (3:30-3:50) Switch to VSCode. Show the project tree in the left pane; open `src/lib.rs` and highlight the generated structure, including `#[app_config(name = "posts")]` and the `src/frontend/` module
 - (3:50-4:00) Open `Cargo.toml` and emphasize `reinhardt = { version = "0.1", features = ["full", "frontend"] }`. Then create `local.toml` for local environment overrides (never committed):
@@ -113,7 +113,7 @@ signing_key = "local-dev-token-secret"
 **Narration (English)**:
 
 > (2:30) Let's start by scaffolding the project.
-> (2:38) If you know Django, `startproject` will feel right at home — but this one takes a `--with-frontend` flag.
+> (2:38) If you know Django, `startproject` will feel right at home — but this one takes a `--with-pages` flag.
 > (2:52) One command gives you a manager script, a config module, an app directory, and a frontend module that compiles to WebAssembly.
 > (3:10) Next, add a `posts` app. `startapp` separates models, views, and serializers into their own files from day one.
 > (3:30) Open it in the editor. The backend tree looks like Django; the `frontend/` folder holds pages, components, and the reactive router.
@@ -122,7 +122,7 @@ signing_key = "local-dev-token-secret"
 
 **Captions**:
 
-- Command subtitle: `$ reinhardt-admin startproject fullstack_demo --with-frontend`
+- Command subtitle: `$ reinhardt-admin startproject fullstack_demo --with-pages`
 - Bottom-right: `Django-style scaffolding + WASM frontend, in Rust`
 
 **Word count**: ~155 words
@@ -335,7 +335,7 @@ use crate::apps::posts::{models::Post, serializers::PostSerializer};
 pub async fn list_posts(
     #[inject] db: DatabaseConnection,
 ) -> std::result::Result<Vec<PostSerializer>, ServerFnError> {
-    let rows = Post::objects().using(&db).all().await?;
+    let rows = Post::objects().all_with_db(&db).await?;
     Ok(rows.into_iter().map(PostSerializer::from).collect())
 }
 ```
@@ -370,7 +370,7 @@ pub fn posts_page() -> Page {
 
 - (9:25-9:45) Hover over `list_posts` — rust-analyzer shows it's a `#[server_fn]`: same signature on both sides, `PostSerializer` is the single wire contract, no schema drift
 - (9:45-10:05) Switch to `src/pages/mod.rs` and register the page in the router with a single line: `.route("/", posts_page)`
-- (10:05-10:20) Run `cargo run --bin manage runserver --with-frontend` in Terminal. The backend and WASM bundler boot together
+- (10:05-10:20) Run `cargo run --bin manage runserver --with-pages` in Terminal. The backend and WASM bundler boot together
 - (10:20-10:30) Open the browser at `http://127.0.0.1:8000/`. The page dispatches `list_posts`, receives the JSON, and renders live
 
 **Narration (English)**:
@@ -381,7 +381,7 @@ pub fn posts_page() -> Page {
 > (8:40) On the client, `use_action` turns that RPC into a reactive resource and re-renders when the data arrives.
 > (9:00) The `page!` macro is the view DSL — braces, child blocks, and plain Rust expressions. No JSX.
 > (9:20) `PostSerializer` is the contract. Backend and frontend share the same Rust type — no schema drift, ever.
-> (9:50) `runserver --with-frontend` boots the API and the WASM bundler in one step.
+> (9:50) `runserver --with-pages` boots the API and the WASM bundler in one step.
 > (10:15) Open the browser and the list is rendering — end-to-end, fully typed.
 
 **Captions**:
@@ -486,7 +486,7 @@ pub struct PostRepository { db: DatabaseConnection }
 
 impl PostRepository {
     pub async fn get(&self, id: i64) -> Result<Post> {
-        Post::objects().using(&self.db).get(id).await
+        Post::objects().get(id).first_with_db(&self.db).await
     }
     pub async fn save(&self, post: &mut Post) -> Result<()> {
         post.save().await

@@ -23,7 +23,7 @@ demos:
         timeout: 1500
 
       - action: executeTerminalCommand
-        command: reinhardt-admin startproject fullstack_demo --with-frontend
+        command: reinhardt-admin startproject fullstack_demo --with-pages
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
@@ -312,7 +312,7 @@ demos:
           pub async fn list_posts(
               #[inject] db: DatabaseConnection,
           ) -> std::result::Result<Vec<PostSerializer>, ServerFnError> {
-              let rows = Post::objects().using(&db).all().await?;
+              let rows = Post::objects().all_with_db(&db).await?;
               Ok(rows.into_iter().map(PostSerializer::from).collect())
           }
       - action: save
@@ -383,7 +383,7 @@ demos:
 
       # Single command boots backend + trunk watcher for the WASM bundle
       - action: executeTerminalCommand
-        command: cargo run --bin manage runserver --with-frontend
+        command: cargo run --bin manage runserver --with-pages
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
@@ -477,7 +477,7 @@ demos:
           impl PostRepository {
               // Result<T> uses reinhardt's Error alias from prelude
               pub async fn get(&self, id: i64) -> Result<Post> {
-                  Post::objects().using(&self.db).get(id).await
+                  Post::objects().get(id).first_with_db(&self.db).await
               }
               pub async fn save(&self, post: &mut Post) -> Result<()> {
                   post.save().await
