@@ -96,7 +96,19 @@
 - (2:45-3:10) Type and run `reinhardt-admin startproject fullstack_demo --with-frontend`. The generated file tree prints out; highlight `manage.rs`, `Cargo.toml`, `src/`, `src/frontend/`, `config/`
 - (3:10-3:30) `cd fullstack_demo && reinhardt-admin startapp posts`. Under `src/apps/posts/`, `models.rs`, `serializers.rs`, `views.rs`, `urls.rs` appear
 - (3:30-3:50) Switch to VSCode. Show the project tree in the left pane; open `src/lib.rs` and highlight the generated structure, including `#[app_config(name = "posts")]` and the `src/frontend/` module
-- (3:50-4:00) Open `Cargo.toml` and emphasize `reinhardt = { version = "0.1", features = ["full", "frontend"] }`
+- (3:50-4:00) Open `Cargo.toml` and emphasize `reinhardt = { version = "0.1", features = ["full", "frontend"] }`. Then create `local.toml` for local environment overrides (never committed):
+
+```toml
+[core]
+secret_key = "local-dev-secret-change-in-production"
+debug = true
+
+[core.database]
+url = "sqlite://./db.sqlite3"
+
+[auth.token]
+signing_key = "local-dev-token-secret"
+```
 
 **Narration (English)**:
 
@@ -106,13 +118,14 @@
 > (3:10) Next, add a `posts` app. `startapp` separates models, views, and serializers into their own files from day one.
 > (3:30) Open it in the editor. The backend tree looks like Django; the `frontend/` folder holds pages, components, and the reactive router.
 > (3:45) A single `features = ["full", "frontend"]` in `Cargo.toml` pulls in ORM, admin, auth, and the WASM runtime — every battery, pre-charged.
+> (3:55) Drop a `local.toml` for the database URL and token signing key — environment-specific values that never hit version control.
 
 **Captions**:
 
 - Command subtitle: `$ reinhardt-admin startproject fullstack_demo --with-frontend`
 - Bottom-right: `Django-style scaffolding + WASM frontend, in Rust`
 
-**Word count**: ~140 words
+**Word count**: ~155 words
 
 ---
 
@@ -151,7 +164,33 @@ pub struct Post {
 ```
 
 - (4:50-5:10) Hover over `#[model(...)]`. Show rust-analyzer's popup listing the generated API: `Post::new`, `Post::objects()`, `Post::table()`, and so on
-- (5:10-5:30) Append `impl Post { pub fn summary(&self) -> String { ... } }`. Emphasize that domain methods live in an ordinary `impl` block
+- (5:10-5:20) Append `impl Post { pub fn summary(&self) -> String { ... } }`. Emphasize that domain methods live in an ordinary `impl` block
+- (5:20-5:30) Open `src/users.rs` and define the `User` model using `#[user]` — the macro generates `BaseUser`, `AuthIdentity`, and password-hashing boilerplate automatically:
+
+```rust
+use reinhardt::prelude::*;
+use reinhardt_auth::hasher::Argon2Hasher;
+use serde::{Deserialize, Serialize};
+
+#[user(hasher = Argon2Hasher, username_field = "email")]
+#[model(app_label = "users", table_name = "auth_user")]
+#[derive(Serialize, Deserialize)]
+pub struct User {
+    #[field(primary_key = true)]
+    pub id: i64,
+
+    #[field(max_length = 150, unique = true)]
+    pub username: String,
+
+    #[field(max_length = 255, unique = true)]
+    pub email: String,
+
+    pub password_hash: Option<String>,
+
+    #[field(default = true)]
+    pub is_active: bool,
+}
+```
 
 **Narration (English)**:
 
@@ -161,13 +200,14 @@ pub struct Post {
 > (4:45) The important part: every one of those constraints is checked at compile time.
 > (5:00) The macro synthesizes `Post::new`, `Post::objects`, and friends. All type-safe, all static.
 > (5:15) Domain methods live in ordinary `impl` blocks. No magic — just code you can read.
+> (5:22) The User model uses `#[user]` — one attribute replaces the entire `impl BaseUser` block. Hasher and username field, declared once.
 
 **Captions**:
 
 - Macro annotation popup: `expanded by reinhardt-macros`
 - Bottom-right: `Type-safe ORM, Django-style fields.`
 
-**Word count**: ~120 words
+**Word count**: ~140 words
 
 ---
 
@@ -205,24 +245,38 @@ pub struct Post {
 
 **Screen composition**:
 
-- (6:30-7:00) Open `src/apps/posts/serializers.rs` and declare a `PostSerializer` that wraps the model as the API's I/O shape:
+- (6:30-7:00) Open `src/apps/posts/serializers.rs` and declare `PostSerializer`. It derives `Validate` and carries per-field length constraints — the framework enforces them automatically on incoming requests via `pre_validate` on `#[server_fn]`:
 
 ```rust
 use reinhardt::prelude::*;
+use reinhardt::Validate;
 use super::models::Post;
 
-#[derive(Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, serde::Serialize, serde::Deserialize, Validate)]
 pub struct PostSerializer {
     #[serde(skip_deserializing)]
     pub id: i64,
+
+    #[validate(length(min = 1, max = 200, message = "title must be 1–200 chars"))]
     pub title: String,
+
+    #[validate(length(min = 1, max = 10000, message = "body must be 1–10000 chars"))]
     pub body: String,
+
     pub published: bool,
+
     #[serde(skip_deserializing)]
     pub created_at: chrono::DateTime<chrono::Utc>,
 }
 
-impl From<Post> for PostSerializer { /* field-for-field conversion */ }
+// From<Post> covers the read path (DB → response).
+// Input validation is delegated to pre_validate on #[server_fn].
+impl From<Post> for PostSerializer {
+    fn from(p: Post) -> Self {
+        Self { id: p.id, title: p.title, body: p.body,
+               published: p.published, created_at: p.created_at }
+    }
+}
 ```
 
 - (7:00-7:20) Side-by-side comparison: `PostSerializer` on the left, DRF's `ModelSerializer` on the right. Animate the 1:1 correspondence — same intent, different surface
@@ -422,16 +476,21 @@ pub struct AuthSettings {
 pub struct ProjectSettings;
 ```
 
-- (12:35-12:50) Declare `PostRepository` as a DI-resolved dependency in `src/apps/posts/repositories.rs` using `#[injectable_factory]`. The factory itself is injected into — no global state:
+- (12:35-12:50) Declare `PostRepository` as a DI-resolved dependency in `src/apps/posts/repositories.rs` using `#[injectable_factory]`. The factory itself is injected into — no global state. `save` takes `&mut Post` and returns `Result<()>` (reinhardt's prelude alias):
 
 ```rust
 use reinhardt::prelude::*;
+use super::models::Post;
 
 pub struct PostRepository { db: DatabaseConnection }
 
 impl PostRepository {
-    pub async fn get(&self, id: i64) -> Result<Post, DbError> { /* ... */ }
-    pub async fn save(&self, post: &Post) -> Result<Post, DbError> { /* ... */ }
+    pub async fn get(&self, id: i64) -> Result<Post> {
+        Post::objects().using(&self.db).get(id).await
+    }
+    pub async fn save(&self, post: &mut Post) -> Result<()> {
+        post.save().await
+    }
 }
 
 #[injectable_factory]
@@ -442,39 +501,58 @@ pub async fn post_repository(
 }
 ```
 
-- (12:50-13:15) In `src/apps/posts/server_fn.rs`, add the real publish RPC. Note: this is a `#[server_fn]`, not an `#[action]` — the WASM frontend can call it directly, and `AuthUser<User>` is the idiomatic authenticated-user extractor:
+- (12:50-13:00) Add `PublishInput` to `src/apps/posts/serializers.rs` — a validated request body for the publish RPC:
+
+```rust
+#[derive(serde::Deserialize, Validate)]
+pub struct PublishInput {
+    #[validate(range(min = 1, message = "id must be a positive integer"))]
+    pub id: i64,
+}
+```
+
+- (13:00-13:20) In `src/apps/posts/server_fn.rs`, add the publish RPC. `#[server_fn(pre_validate = true)]` automatically calls `PublishInput::validate()` before the body runs — invalid input returns 400 without reaching application code. `Guard<IsActiveUser>` enforces authorization — inactive users get 403:
 
 ```rust
 use reinhardt::prelude::*;
 use reinhardt::pages::ServerFnError;
-use reinhardt_auth::AuthUser;
-use crate::apps::posts::{serializers::PostSerializer, repositories::PostRepository};
+use reinhardt_auth::{AuthUser, guard::{Guard, IsActiveUser}};
 use crate::users::User;
+use super::{repositories::PostRepository, serializers::{PostSerializer, PublishInput}};
 
-#[server_fn]
+#[server_fn(pre_validate = true)]
 pub async fn publish_post(
-    id: i64,
+    input: PublishInput,
     #[inject] AuthUser(user): AuthUser<User>,
+    #[inject] _: Guard<IsActiveUser>,
     #[inject] posts: PostRepository,
 ) -> std::result::Result<PostSerializer, ServerFnError> {
-    let mut post = posts.get(id).await?;
+    let mut post = posts.get(input.id).await?;
     post.publish_by(&user)?;
-    let saved = posts.save(&post).await?;
-    Ok(PostSerializer::from(saved))
+    posts.save(&mut post).await?;
+    Ok(PostSerializer::from(post))
 }
 ```
 
-- (13:15-13:25) Mirror the same pattern on the frontend. In `src/pages/posts_page.rs`, wire `publish_post` into a button via `use_action`; the RPC, the type, and the auth check all come from the same source of truth
-- (13:25-13:30) In Terminal, side by side: `curl` without a token → `401`, and `curl` with `-H "Authorization: Bearer $TOKEN"` → `200`
+- (13:20-13:25) Mirror the same pattern on the frontend. In `src/pages/posts_page.rs`, wire `publish_post` into a button via `use_action`, passing `PublishInput { id }`:
+
+```rust
+let publish = use_action(|id: i64| async move {
+    publish_post(PublishInput { id }).await.map_err(|e| e.to_string())
+});
+```
+
+- (13:25-13:30) In Terminal, side by side: `curl` without a token → `401`, active user token → `200`, inactive user → `403`
 
 **Narration (English)**:
 
 > (12:20) Now the code.
 > (12:25) `AuthSettings` is a `#[settings]` fragment composed into `ProjectSettings` — token auth turned on, no globals.
 > (12:38) `PostRepository` is registered with `#[injectable_factory]`. One async function describes how to build it; the container does the rest.
-> (12:50) Inside a `#[server_fn]`, `#[inject]` shines — `AuthUser<User>` and `PostRepository` show up as plain function arguments.
-> (13:02) The same RPC is callable from the WASM frontend via `use_action` — server fn on one side, reactive resource on the other.
-> (13:18) No token: 401. Valid token: 200.
+> (12:50) `PublishInput` carries a validated id — `#[validate(range(min = 1))]` keeps invalid calls from ever reaching the database.
+> (13:00) `pre_validate = true` on `#[server_fn]` calls `validate()` automatically. No boilerplate, no forgotten checks.
+> (13:08) `Guard<IsActiveUser>` is injected alongside the user — inactive accounts get 403 before the body runs.
+> (13:18) No token: 401. Inactive user: 403. Valid active token: 200.
 > (13:28) Declarative to write, statically enforced. That's the Reinhardt way.
 
 **Captions**:
