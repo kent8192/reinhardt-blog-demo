@@ -58,6 +58,29 @@ demos:
       - action: waitForTimeout
         timeout: 3000
 
+      # local.toml — local environment overrides (never committed)
+      - action: open
+        path: fullstack_demo/local.toml
+      - action: insert
+        path: fullstack_demo/local.toml
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 30
+        content: |
+          [core]
+          secret_key = "local-dev-secret-change-in-production"
+          debug = true
+
+          [core.database]
+          url = "sqlite://./db.sqlite3"
+
+          [auth.token]
+          signing_key = "local-dev-token-secret"
+      - action: save
+        path: fullstack_demo/local.toml
+      - action: waitForTimeout
+        timeout: 2000
+
   # =========================================================================
   - title: "Scene 4: Define Post model (4:00–5:30)"
     description: Type the Post struct in models.rs, then add a domain method via an ordinary impl block.
@@ -165,15 +188,22 @@ demos:
         insertTypingSpeed: 25
         content: |
           use reinhardt::prelude::*;
+          use reinhardt::Validate;
           use super::models::Post;
 
-          #[derive(Clone, serde::Serialize, serde::Deserialize)]
+          #[derive(Clone, serde::Serialize, serde::Deserialize, Validate)]
           pub struct PostSerializer {
               #[serde(skip_deserializing)]
               pub id: i64,
+
+              #[validate(length(min = 1, max = 200, message = "title must be 1–200 chars"))]
               pub title: String,
+
+              #[validate(length(min = 1, max = 10000, message = "body must be 1–10000 chars"))]
               pub body: String,
+
               pub published: bool,
+
               #[serde(skip_deserializing)]
               pub created_at: chrono::DateTime<chrono::Utc>,
           }
