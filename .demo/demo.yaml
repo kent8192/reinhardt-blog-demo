@@ -31,10 +31,11 @@ demos:
         insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 2000
+      # Workaround: kent8192/reinhardt-web#3866 — #[app_config is in apps/posts.rs, not lib.rs
       - action: open
-        path: fullstack_demo/src/lib.rs
+        path: fullstack_demo/src/apps/posts.rs
       - action: highlight
-        path: fullstack_demo/src/lib.rs
+        path: fullstack_demo/src/apps/posts.rs
         startPlaceholder: '#[app_config'
         endPlaceholder: '"posts")]'
         highlightWholeLine: true
@@ -46,7 +47,8 @@ demos:
       - action: highlight
         path: fullstack_demo/Cargo.toml
         startPlaceholder: reinhardt
-        endPlaceholder: '"frontend"] }'
+        # Workaround: kent8192/reinhardt-web#3866 — "frontend" feature renamed to "admin"
+        endPlaceholder: '"admin",  # Admin panel functionality (includes reinhardt-pages)'
         highlightWholeLine: true
         zoom: 1.5
       - action: waitForTimeout
@@ -182,9 +184,9 @@ demos:
         command: '[ "$(basename "$PWD")" = "fullstack_demo" ] || cd fullstack_demo'
       - action: waitForTimeout
         timeout: 500
-      # Workaround: --bin name equals project name until kent8192/reinhardt-web#3862 is fixed
+      # Workaround: kent8192/reinhardt-web#3862 — --bin name; kent8192/reinhardt-web#3871 — --force-empty-state for no-Docker env
       - action: executeTerminalCommand
-        command: cargo run --bin fullstack_demo makemigrations posts
+        command: cargo run --bin fullstack_demo makemigrations posts --force-empty-state
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
@@ -266,7 +268,7 @@ demos:
           use reinhardt::views::viewsets::{FilterConfig, OrderingConfig, PaginationConfig};
           use super::{models::Post, serializers::PostSerializer};
 
-          #[reinhardt::viewset]
+          # Workaround: kent8192/reinhardt-web#3867 — #[reinhardt::viewset] macro does not exist in rc.17
           pub fn viewset() -> ModelViewSet<Post, PostSerializer> {
               ModelViewSet::new("posts")
                   .with_pagination(PaginationConfig::page_number(10, Some(100)))
@@ -287,8 +289,9 @@ demos:
         endPlaceholder: '// router.register_viewset("users", user_viewset);'
         insertTypingMode: character-by-character
         insertTypingSpeed: 30
+        # Workaround: kent8192/reinhardt-web#3867 — viewset() is on ServerRouter, not UnifiedRouter
         content: |2
-              router.viewset("/posts", crate::apps::posts::views::viewset());
+              let router = router.server(|r| r.viewset("/posts", crate::apps::posts::views::viewset()));
       - action: save
         path: fullstack_demo/src/config/urls.rs
       - action: waitForTimeout
@@ -297,10 +300,11 @@ demos:
     description: |
       Write a typed server_fn RPC, then build a page!-based WASM page that calls it via use_action. Same crate — reinhardt::pages compiles to WebAssembly via the `frontend` feature.
     steps:
+      # Workaround: kent8192/reinhardt-web#3868 — server_fn.rs path is now server/server_fn.rs
       - action: open
-        path: fullstack_demo/src/apps/posts/server_fn.rs
+        path: fullstack_demo/src/apps/posts/server/server_fn.rs
       - action: insert
-        path: fullstack_demo/src/apps/posts/server_fn.rs
+        path: fullstack_demo/src/apps/posts/server/server_fn.rs
         position: end
         insertTypingMode: character-by-character
         insertTypingSpeed: 25
@@ -320,16 +324,18 @@ demos:
         path: fullstack_demo/src/apps/posts/server_fn.rs
       - action: waitForTimeout
         timeout: 1500
+      # Workaround: kent8192/reinhardt-web#3866 — pages dir is client/pages/
       - action: open
-        path: fullstack_demo/src/pages/posts_page.rs
+        path: fullstack_demo/src/client/pages/posts_page.rs
       - action: insert
-        path: fullstack_demo/src/pages/posts_page.rs
+        path: fullstack_demo/src/client/pages/posts_page.rs
         position: end
         insertTypingMode: character-by-character
         insertTypingSpeed: 25
         content: |
           use reinhardt::pages::prelude::*;
-          use crate::apps::posts::{serializers::PostSerializer, server_fn::list_posts};
+          # Workaround: kent8192/reinhardt-web#3868 — module path is server::server_fn
+          use crate::apps::posts::{serializers::PostSerializer, server::server_fn::list_posts};
 
           pub fn posts_page() -> Page {
               let load_posts = use_action(|_: ()| async move {
@@ -356,18 +362,19 @@ demos:
       - action: waitForTimeout
         timeout: 1500
       - action: highlight
-        path: fullstack_demo/src/pages/posts_page.rs
+        path: fullstack_demo/src/client/pages/posts_page.rs
         startPlaceholder: 'page!(|ls:'
         endPlaceholder: '})(ls)'
         zoom: 1.4
       - action: waitForTimeout
         timeout: 2500
       - action: unselect
-        path: fullstack_demo/src/pages/posts_page.rs
+        path: fullstack_demo/src/client/pages/posts_page.rs
+      # Workaround: kent8192/reinhardt-web#3866 — router is in client/pages/mod.rs
       - action: open
-        path: fullstack_demo/src/pages/mod.rs
+        path: fullstack_demo/src/client/pages/mod.rs
       - action: insert
-        path: fullstack_demo/src/pages/mod.rs
+        path: fullstack_demo/src/client/pages/mod.rs
         startPlaceholder: |
           PagesRouter::new()
         insertTypingMode: character-by-character
@@ -408,7 +415,8 @@ demos:
           use reinhardt::prelude::*;
           use super::models::Post;
 
-          #[admin(model = Post, list_display = [id, title, published, created_at])]
+          # Workaround: kent8192/reinhardt-web#3867 — correct syntax: model, for = Type, name = "Name"
+          #[admin(model, for = Post, name = "Post", list_display = [id, title, published, created_at])]
           pub struct PostAdmin;
       - action: save
         path: fullstack_demo/src/apps/posts/admin.rs
@@ -443,11 +451,10 @@ demos:
         insertTypingSpeed: 25
         content: |
 
-          use reinhardt_auth::rest_authentication::TokenAuthConfig;
-
+          # Workaround: kent8192/reinhardt-web#3867 — TokenAuthConfig lacks serde; use signing_key: String
           #[settings(fragment = true, section = "auth")]
           pub struct AuthSettings {
-              pub token: TokenAuthConfig,
+              pub signing_key: String,
           }
       - action: insert
         path: fullstack_demo/src/config/settings.rs
@@ -513,30 +520,30 @@ demos:
         path: fullstack_demo/src/apps/posts/serializers.rs
       - action: waitForTimeout
         timeout: 1000
+      # Workaround: kent8192/reinhardt-web#3868 — server_fn.rs path is now server/server_fn.rs
       - action: open
-        path: fullstack_demo/src/apps/posts/server_fn.rs
+        path: fullstack_demo/src/apps/posts/server/server_fn.rs
       - action: insert
-        path: fullstack_demo/src/apps/posts/server_fn.rs
+        path: fullstack_demo/src/apps/posts/server/server_fn.rs
         position: end
         insertTypingMode: character-by-character
         insertTypingSpeed: 25
         content: |
 
-          use reinhardt::AuthUser;
-          use reinhardt_auth::guard::{Guard, IsActiveUser};
-          use crate::apps::users::models::User;
+          # Workaround: kent8192/reinhardt-web#3867 — Guard/Injectable bounds; simplified for demo
           use super::{repositories::PostRepository, serializers::PublishInput};
 
-          #[server_fn(pre_validate = true)]
+          #[server_fn]
           pub async fn publish_post(
               input: PublishInput,
-              #[inject] AuthUser(user): AuthUser<User>,
-              #[inject] _: Guard<IsActiveUser>,
-              #[inject] posts: PostRepository,
+              #[inject] db: DatabaseConnection,
           ) -> std::result::Result<PostSerializer, ServerFnError> {
-              let mut post = posts.get(input.id).await?;
-              post.publish_by(&user)?;
-              posts.save(&mut post).await?;
+              let posts = PostRepository { db };
+              let mut post = posts.get(input.id).await
+                  .map_err(|e| ServerFnError::server(500, e.to_string()))?;
+              post.published = true;
+              posts.save(&mut post).await
+                  .map_err(|e| ServerFnError::server(500, e.to_string()))?;
               Ok(PostSerializer::from(post))
           }
       - action: save
@@ -544,25 +551,27 @@ demos:
       - action: waitForTimeout
         timeout: 1500
       - action: highlight
-        path: fullstack_demo/src/apps/posts/server_fn.rs
+        path: fullstack_demo/src/apps/posts/server/server_fn.rs
         startPlaceholder: '#[inject]'
         endPlaceholder: 'posts: PostRepository,'
         zoom: 1.8
       - action: waitForTimeout
         timeout: 2500
       - action: unselect
-        path: fullstack_demo/src/apps/posts/server_fn.rs
+        path: fullstack_demo/src/apps/posts/server/server_fn.rs
+      # Workaround: kent8192/reinhardt-web#3866
       - action: open
-        path: fullstack_demo/src/pages/posts_page.rs
+        path: fullstack_demo/src/client/pages/posts_page.rs
       - action: insert
-        path: fullstack_demo/src/pages/posts_page.rs
+        path: fullstack_demo/src/client/pages/posts_page.rs
         startPlaceholder: |
           load_posts.dispatch(());
         insertTypingMode: character-by-character
         insertTypingSpeed: 30
+        # Workaround: kent8192/reinhardt-web#3868 — module path is server::server_fn
         content: |2
               let publish = use_action(|id: i64| async move {
-                  crate::apps::posts::server_fn::publish_post(
+                  crate::apps::posts::server::server_fn::publish_post(
                       crate::apps::posts::serializers::PublishInput { id },
                   ).await.map_err(|e| e.to_string())
               });
