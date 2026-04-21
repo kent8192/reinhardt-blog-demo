@@ -177,6 +177,14 @@ demos:
   - title: 'Scene 5: Migrations (5:30–6:30)'
     description: makemigrations → migrate → verify schema.
     steps:
+      # Ensure cwd is inside the project root
+      - action: executeTerminalCommand
+        command: '[ "$(basename "$PWD")" = "fullstack_demo" ] || cd fullstack_demo'
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 500
+      # Workaround: --bin name equals project name until kent8192/reinhardt-web#3862 is fixed
       - action: executeTerminalCommand
         command: cargo run --bin fullstack_demo makemigrations posts
         insertTypingMode: character-by-character
@@ -192,6 +200,7 @@ demos:
         highlightWholeLine: true
       - action: waitForTimeout
         timeout: 2500
+      # Workaround: kent8192/reinhardt-web#3862
       - action: executeTerminalCommand
         command: cargo run --bin fullstack_demo migrate
         insertTypingMode: character-by-character
@@ -371,6 +380,14 @@ demos:
         path: fullstack_demo/src/pages/mod.rs
       - action: waitForTimeout
         timeout: 1000
+      # Ensure cwd is inside the project root
+      - action: executeTerminalCommand
+        command: '[ "$(basename "$PWD")" = "fullstack_demo" ] || cd fullstack_demo'
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 500
+      # Workaround: kent8192/reinhardt-web#3862
       - action: executeTerminalCommand
         command: cargo run --bin fullstack_demo runserver --with-pages
         insertTypingMode: character-by-character
@@ -401,6 +418,14 @@ demos:
         path: fullstack_demo/src/apps/posts/admin.rs
       - action: waitForTimeout
         timeout: 1500
+      # Ensure cwd is inside the project root
+      - action: executeTerminalCommand
+        command: '[ "$(basename "$PWD")" = "fullstack_demo" ] || cd fullstack_demo'
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 500
+      # Workaround: kent8192/reinhardt-web#3862
       - action: executeTerminalCommand
         command: cargo run --bin fullstack_demo createsuperuser
         insertTypingMode: character-by-character
