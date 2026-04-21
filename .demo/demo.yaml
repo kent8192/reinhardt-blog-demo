@@ -271,7 +271,21 @@ demos:
       - action: save
         path: fullstack_demo/src/apps/posts/views.rs
       - action: waitForTimeout
-        timeout: 2000
+        timeout: 1500
+      - action: open
+        path: fullstack_demo/src/config/urls.rs
+      - action: insert
+        path: fullstack_demo/src/config/urls.rs
+        startPlaceholder: '// Add your API endpoint patterns here'
+        endPlaceholder: '// router.register_viewset("users", user_viewset);'
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 30
+        content: |2
+              router.viewset("/posts", crate::apps::posts::views::viewset());
+      - action: save
+        path: fullstack_demo/src/config/urls.rs
+      - action: waitForTimeout
+        timeout: 1500
   - title: 'Scene 7: WASM frontend page (8:00–10:30)'
     description: |
       Write a typed server_fn RPC, then build a page!-based WASM page that calls it via use_action. Same crate — reinhardt::pages compiles to WebAssembly via the `frontend` feature.
