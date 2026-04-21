@@ -413,7 +413,7 @@ demos:
           use reinhardt::prelude::*;
           use reinhardt_auth::rest_authentication::TokenAuthConfig;
 
-          #[settings(fragment = true)]
+          #[settings(fragment = true, section = "auth")]
           pub struct AuthSettings {
               pub token: TokenAuthConfig,
           }
