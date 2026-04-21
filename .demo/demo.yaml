@@ -180,8 +180,6 @@ demos:
       # Ensure cwd is inside the project root
       - action: executeTerminalCommand
         command: '[ "$(basename "$PWD")" = "fullstack_demo" ] || cd fullstack_demo'
-        insertTypingMode: character-by-character
-        insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 500
       # Workaround: --bin name equals project name until kent8192/reinhardt-web#3862 is fixed
@@ -383,8 +381,6 @@ demos:
       # Ensure cwd is inside the project root
       - action: executeTerminalCommand
         command: '[ "$(basename "$PWD")" = "fullstack_demo" ] || cd fullstack_demo'
-        insertTypingMode: character-by-character
-        insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 500
       # Workaround: kent8192/reinhardt-web#3862
@@ -421,8 +417,6 @@ demos:
       # Ensure cwd is inside the project root
       - action: executeTerminalCommand
         command: '[ "$(basename "$PWD")" = "fullstack_demo" ] || cd fullstack_demo'
-        insertTypingMode: character-by-character
-        insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 500
       # Workaround: kent8192/reinhardt-web#3862
