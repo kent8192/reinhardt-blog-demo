@@ -142,7 +142,7 @@ demos:
         insertTypingSpeed: 25
         content: |
           use reinhardt::prelude::*;
-          use reinhardt::auth::Argon2Hasher;
+          use reinhardt::Argon2Hasher;
           use serde::{Deserialize, Serialize};
 
           #[user(hasher = Argon2Hasher, username_field = "email")]
@@ -478,7 +478,8 @@ demos:
         insertTypingSpeed: 25
         content: |
 
-          use reinhardt::auth::{AuthUser, Guard, IsActiveUser};
+          use reinhardt::AuthUser;
+          use reinhardt_auth::guard::{Guard, IsActiveUser};
           use crate::apps::users::models::User;
           use super::{repositories::PostRepository, serializers::PublishInput};
 
