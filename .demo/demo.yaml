@@ -178,7 +178,7 @@ demos:
     description: makemigrations → migrate → verify schema.
     steps:
       - action: executeTerminalCommand
-        command: cargo run --bin manage makemigrations posts
+        command: cargo run --bin fullstack_demo makemigrations posts
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
@@ -193,7 +193,7 @@ demos:
       - action: waitForTimeout
         timeout: 2500
       - action: executeTerminalCommand
-        command: cargo run --bin manage migrate
+        command: cargo run --bin fullstack_demo migrate
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
@@ -372,7 +372,7 @@ demos:
       - action: waitForTimeout
         timeout: 1000
       - action: executeTerminalCommand
-        command: cargo run --bin manage runserver --with-pages
+        command: cargo run --bin fullstack_demo runserver --with-pages
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
@@ -402,7 +402,7 @@ demos:
       - action: waitForTimeout
         timeout: 1500
       - action: executeTerminalCommand
-        command: cargo run --bin manage createsuperuser
+        command: cargo run --bin fullstack_demo createsuperuser
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
