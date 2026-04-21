@@ -20,7 +20,7 @@ demos:
       - action: waitForTimeout
         timeout: 2500
       - action: executeTerminalCommand
-        command: cd fullstack_demo && reinhardt-admin startapp posts
+        command: cd fullstack_demo && reinhardt-admin startapp posts --with-pages
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
@@ -46,9 +46,9 @@ demos:
       - action: waitForTimeout
         timeout: 3000
       - action: open
-        path: fullstack_demo/local.toml
+        path: fullstack_demo/settings/local.toml
       - action: insert
-        path: fullstack_demo/local.toml
+        path: fullstack_demo/settings/local.toml
         position: end
         insertTypingMode: character-by-character
         insertTypingSpeed: 30
@@ -63,7 +63,7 @@ demos:
           [auth.token]
           signing_key = "local-dev-token-secret"
       - action: save
-        path: fullstack_demo/local.toml
+        path: fullstack_demo/settings/local.toml
       - action: waitForTimeout
         timeout: 2000
   - title: 'Scene 4: Define Post model (4:00–5:30)'
@@ -272,7 +272,7 @@ demos:
         insertTypingSpeed: 25
         content: |
           use reinhardt::prelude::*;
-          use reinhardt::pages::server_fn::ServerFnError;
+          use reinhardt::pages::ServerFnError;
           use super::{models::Post, serializers::PostSerializer};
 
           #[server_fn]
@@ -368,7 +368,7 @@ demos:
           use reinhardt::prelude::*;
           use super::models::Post;
 
-          #[admin(model, for = Post, name = "Post", list_display = [id, title, published, created_at])]
+          #[admin(model = Post, list_display = [id, title, published, created_at])]
           pub struct PostAdmin;
       - action: save
         path: fullstack_demo/src/apps/posts/admin.rs
@@ -400,12 +400,12 @@ demos:
           use reinhardt::prelude::*;
           use reinhardt_auth::rest_authentication::TokenAuthConfig;
 
-          #[settings(fragment = true, section = "auth")]
+          #[settings(fragment = true)]
           pub struct AuthSettings {
               pub token: TokenAuthConfig,
           }
 
-          #[settings(core: CoreSettings | auth: AuthSettings)]
+          #[settings(core: CoreSettings, auth: AuthSettings)]
           pub struct ProjectSettings;
       - action: save
         path: fullstack_demo/src/config/settings.rs
