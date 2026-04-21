@@ -163,6 +163,8 @@ demos:
 
               #[field(default = true)]
               pub is_active: bool,
+
+              pub last_login: Option<DateTime<Utc>>,
           }
       - action: save
         path: fullstack_demo/src/apps/users/models.rs
