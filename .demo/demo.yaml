@@ -141,8 +141,9 @@ demos:
         insertTypingMode: character-by-character
         insertTypingSpeed: 25
         content: |
+          use chrono::{DateTime, Utc};
           use reinhardt::prelude::*;
-          use reinhardt::Argon2Hasher;
+          use reinhardt::{Argon2Hasher, core::macros::user};
           use serde::{Deserialize, Serialize};
 
           #[user(hasher = Argon2Hasher, username_field = "email")]
