@@ -410,14 +410,19 @@ demos:
         insertTypingSpeed: 25
         content: |
 
-          use reinhardt::prelude::*;
           use reinhardt_auth::rest_authentication::TokenAuthConfig;
 
           #[settings(fragment = true, section = "auth")]
           pub struct AuthSettings {
               pub token: TokenAuthConfig,
           }
-
+      - action: insert
+        path: fullstack_demo/src/config/settings.rs
+        startPlaceholder: '#[settings(/* add fragments here'
+        endPlaceholder: 'pub struct ProjectSettings;'
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
           #[settings(core: CoreSettings, auth: AuthSettings)]
           pub struct ProjectSettings;
       - action: save
