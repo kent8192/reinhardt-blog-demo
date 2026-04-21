@@ -478,8 +478,7 @@ demos:
         insertTypingSpeed: 25
         content: |
 
-          use reinhardt::auth::{AuthUser, IsActiveUser};
-          use reinhardt_auth::guard::Guard;
+          use reinhardt::auth::{AuthUser, Guard, IsActiveUser};
           use crate::apps::users::models::User;
           use super::{repositories::PostRepository, serializers::PublishInput};
 
