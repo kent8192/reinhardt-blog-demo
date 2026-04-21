@@ -158,6 +158,7 @@ demos:
               #[field(max_length = 255, unique = true)]
               pub email: String,
 
+              #[field(max_length = 255)]
               pub password_hash: Option<String>,
 
               #[field(default = true)]
