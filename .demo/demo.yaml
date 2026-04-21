@@ -26,7 +26,7 @@ demos:
       - action: waitForTimeout
         timeout: 2000
       - action: executeTerminalCommand
-        command: reinhardt-admin startapp users
+        command: reinhardt-admin startapp users --with-pages
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
       - action: waitForTimeout
@@ -142,7 +142,7 @@ demos:
         insertTypingSpeed: 25
         content: |
           use reinhardt::prelude::*;
-          use reinhardt_auth::hasher::Argon2Hasher;
+          use reinhardt::auth::Argon2Hasher;
           use serde::{Deserialize, Serialize};
 
           #[user(hasher = Argon2Hasher, username_field = "email")]
@@ -477,7 +477,8 @@ demos:
         insertTypingSpeed: 25
         content: |
 
-          use reinhardt_auth::{AuthUser, guard::{Guard, IsActiveUser}};
+          use reinhardt::auth::{AuthUser, IsActiveUser};
+          use reinhardt_auth::guard::Guard;
           use crate::apps::users::models::User;
           use super::{repositories::PostRepository, serializers::PublishInput};
 
