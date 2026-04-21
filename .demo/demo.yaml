@@ -25,6 +25,12 @@ demos:
         insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 2000
+      - action: executeTerminalCommand
+        command: reinhardt-admin startapp users
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 50
+      - action: waitForTimeout
+        timeout: 2000
       - action: open
         path: fullstack_demo/src/lib.rs
       - action: highlight
@@ -128,9 +134,9 @@ demos:
       - action: save
         path: fullstack_demo/src/apps/posts/models.rs
       - action: open
-        path: fullstack_demo/src/users.rs
+        path: fullstack_demo/src/apps/users/models.rs
       - action: insert
-        path: fullstack_demo/src/users.rs
+        path: fullstack_demo/src/apps/users/models.rs
         position: end
         insertTypingMode: character-by-character
         insertTypingSpeed: 25
@@ -158,7 +164,7 @@ demos:
               pub is_active: bool,
           }
       - action: save
-        path: fullstack_demo/src/users.rs
+        path: fullstack_demo/src/apps/users/models.rs
       - action: waitForTimeout
         timeout: 1200
   - title: 'Scene 5: Migrations (5:30–6:30)'
@@ -171,9 +177,9 @@ demos:
       - action: waitForTimeout
         timeout: 2500
       - action: open
-        path: fullstack_demo/migrations/0001_initial.rs
+        path: fullstack_demo/src/apps/posts/migrations/0001_initial.rs
       - action: highlight
-        path: fullstack_demo/migrations/0001_initial.rs
+        path: fullstack_demo/src/apps/posts/migrations/0001_initial.rs
         startPlaceholder: CreateTable
         endPlaceholder: '}'
         highlightWholeLine: true
@@ -472,7 +478,7 @@ demos:
         content: |
 
           use reinhardt_auth::{AuthUser, guard::{Guard, IsActiveUser}};
-          use crate::users::User;
+          use crate::apps::users::models::User;
           use super::{repositories::PostRepository, serializers::PublishInput};
 
           #[server_fn(pre_validate = true)]
@@ -518,17 +524,3 @@ demos:
         path: fullstack_demo/src/pages/posts_page.rs
       - action: waitForTimeout
         timeout: 2000
-      - action: executeTerminalCommand
-        terminalId: curl
-        command: 'curl -i http://127.0.0.1:8000/_server_fn/publish_post -d ''{"id":1}'' -H ''Content-Type: application/json'''
-        insertTypingMode: character-by-character
-        insertTypingSpeed: 40
-      - action: waitForTimeout
-        timeout: 2000
-      - action: executeTerminalCommand
-        terminalId: curl
-        insertTypingMode: character-by-character
-        insertTypingSpeed: 40
-        command: 'curl -i -X POST -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8000/_server_fn/publish_post -d ''{"id":1}'' -H ''Content-Type: application/json'''
-      - action: waitForTimeout
-        timeout: 2500
