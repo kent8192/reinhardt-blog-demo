@@ -33,14 +33,11 @@ use reinhardt::conf::settings::sources::{DefaultSource, LowPriorityEnvSource, To
 use reinhardt::settings;
 use std::env;
 
-// Workaround: TokenAuthConfig lacks Serialize/Deserialize; use raw signing_key string instead
-// Fixes: demo.yaml Scene 9 + kent8192/reinhardt-web#3867 (TokenAuthConfig missing serde)
 #[settings(fragment = true, section = "auth")]
 pub struct AuthSettings {
     pub signing_key: String,
 }
 
-// Scene 9 applied: AuthSettings added
 #[settings(core: CoreSettings, auth: AuthSettings)]
 pub struct ProjectSettings;
 

@@ -2,17 +2,20 @@
 //!
 //! This is the main library crate for fullstack_demo.
 
-// Server-side modules
+// Server-only: apps (models, views, admin, urls, serializers)
 #[cfg(server)]
 pub mod apps;
+
+// Server-only: project configuration
 #[cfg(server)]
 pub mod config;
 
-// Client-side modules
+// Client-only: WASM bootstrap, router, pages
 #[cfg(client)]
 pub mod client;
 
-// Shared types (both WASM and server)
+// Cross-cfg: shared types + server functions (stubs on WASM, impls on server)
+pub mod server_fn;
 pub mod shared;
 
 // Re-export commonly used items

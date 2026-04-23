@@ -1,13 +1,12 @@
 # Local Development Settings for fullstack_demo
-# Scene 3 insert (demo.yaml) — clean SQLite-only version
-# Workaround: removed legacy [database]/[security] sections that conflict with [core]
 
 [core]
 secret_key = "local-dev-secret-change-in-production"
 debug = true
 
-[core.database]
-url = "sqlite://./db.sqlite3"
+[database]
+engine = "sqlite"
+name = "db.sqlite3"
 
-[auth.token]
+[auth]
 signing_key = "local-dev-token-secret"

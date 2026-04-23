@@ -5,10 +5,18 @@
 
 use serde::{Deserialize, Serialize};
 
-// Example shared type:
-//
-// #[derive(Debug, Clone, Serialize, Deserialize)]
-// pub struct DataItem {
-//     pub id: u64,
-//     pub name: String,
-// }
+/// Serialized representation of a `Post` crossing the client/server boundary.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PostSerializer {
+    pub id: i64,
+    pub title: String,
+    pub body: String,
+    pub published: bool,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+}
+
+/// Input payload for [`crate::server_fn::posts::publish_post`].
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PublishInput {
+    pub id: i64,
+}
