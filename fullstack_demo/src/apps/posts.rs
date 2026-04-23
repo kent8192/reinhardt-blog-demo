@@ -1,13 +1,30 @@
-//! posts application module (server-only)
+//! posts application module
+//!
+//! A Reinhardt Pages application with WASM frontend and server functions
 
 use reinhardt::app_config;
 
+// Server-side modules
 pub mod admin;
 pub mod models;
 pub mod serializers;
 pub mod urls;
 pub mod views;
-pub mod repositories;
+
+// Client-side modules
+#[cfg(client)]
+pub mod client;
+
+// Server-side modules
+#[cfg(server)]
+pub mod server;
+
+// Shared types (both WASM and server)
+pub mod shared;
+
+// Re-export commonly used types
+pub use shared::errors::*;
+pub use shared::types::*;
 
 #[app_config(name = "posts", label = "posts")]
 pub struct PostsConfig;

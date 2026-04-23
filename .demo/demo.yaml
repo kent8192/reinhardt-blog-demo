@@ -2,7 +2,7 @@ title: Reinhardt Demo
 description: |
   Live-coding portion of the 15-minute Reinhardt full-stack demo. Scenes 1, 2, 10 are rendered separately as Manim animations (see ../source/manim.ipynb). The goal of this script is to show a Rust full-stack framework build — a REST API plus a WASM single-page frontend — in fifteen minutes.
 
-  Target stack: `reinhardt-web@0.1.0-rc.19`. The rc.19 scaffold is used as-is; no manual scaffold fixes are needed anymore. The urls/ directory layout (urls.rs + urls/{server_urls,client_urls,ws_urls}.rs) is the current default (kent8192/reinhardt-web#3917).
+  Target stack: `reinhardt-web@0.1.0-rc.20`. The rc.20 scaffold is used as-is; no manual scaffold fixes are needed. The urls/ directory layout (urls.rs + urls/{server_urls,client_urls,ws_urls}.rs) is the current default (kent8192/reinhardt-web#3917). The default-run = "manage" fix is included in rc.20 (kent8192/reinhardt-web#3925).
 version: 2
 timer: 15
 demos:
@@ -43,7 +43,7 @@ demos:
         zoom: 1.5
       - action: waitForTimeout
         timeout: 2500
-      # Quick tour: the rc.19 urls scaffold is a directory (urls.rs + urls/{server_urls,client_urls,ws_urls}.rs).
+      # Quick tour: the rc.20 urls scaffold is a directory (urls.rs + urls/{server_urls,client_urls,ws_urls}.rs).
       - action: open
         path: fullstack_demo/src/apps/posts/urls.rs
       - action: highlight
