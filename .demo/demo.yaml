@@ -252,41 +252,11 @@ demos:
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
         content: |
-          use reinhardt::Validate;
           use super::models::Post;
-          use crate::shared::types::{PostSerializer as SharedPost, PublishInput as SharedPublishInput};
-
-          #[derive(Clone, serde::Serialize, serde::Deserialize, Validate)]
-          pub struct PostSerializer {
-              #[serde(skip_deserializing)]
-              pub id: i64,
-
-              #[validate(length(min = 1, max = 200, message = "title must be 1–200 chars"))]
-              pub title: String,
-
-              #[validate(length(min = 1, max = 10000, message = "body must be 1–10000 chars"))]
-              pub body: String,
-
-              pub published: bool,
-
-              #[serde(skip_deserializing)]
-              pub created_at: chrono::DateTime<chrono::Utc>,
-          }
+          use crate::shared::types::PostSerializer;
 
           impl From<Post> for PostSerializer {
               fn from(p: Post) -> Self {
-                  Self {
-                      id: p.id,
-                      title: p.title,
-                      body: p.body,
-                      published: p.published,
-                      created_at: p.created_at,
-                  }
-              }
-          }
-
-          impl From<PostSerializer> for SharedPost {
-              fn from(p: PostSerializer) -> Self {
                   Self {
                       id: p.id,
                       title: p.title,
@@ -309,17 +279,28 @@ demos:
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
         content: |
-          #[derive(Debug, Clone, Serialize, Deserialize)]
+          use reinhardt::Validate;
+
+          #[derive(Debug, Clone, Serialize, Deserialize, Validate)]
           pub struct PostSerializer {
+              #[serde(skip_deserializing)]
               pub id: i64,
+
+              #[validate(length(min = 1, max = 200, message = "title must be 1–200 chars"))]
               pub title: String,
+
+              #[validate(length(min = 1, max = 10000, message = "body must be 1–10000 chars"))]
               pub body: String,
+
               pub published: bool,
+
+              #[serde(skip_deserializing)]
               pub created_at: chrono::DateTime<chrono::Utc>,
           }
 
-          #[derive(Debug, Clone, Serialize, Deserialize)]
+          #[derive(Debug, Clone, Serialize, Deserialize, Validate)]
           pub struct PublishInput {
+              #[validate(range(min = 1, message = "id must be a positive integer"))]
               pub id: i64,
           }
       - action: save
@@ -336,7 +317,8 @@ demos:
         content: |
           use reinhardt::prelude::*;
           use reinhardt::views::viewsets::{FilterConfig, OrderingConfig, PaginationConfig};
-          use super::{models::Post, serializers::PostSerializer};
+          use super::models::Post;
+          use crate::shared::types::PostSerializer;
 
           pub fn viewset() -> ModelViewSet<Post, PostSerializer> {
               ModelViewSet::new("posts")
@@ -358,7 +340,7 @@ demos:
         endPlaceholder: ';'
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
-        content: "UnifiedRouter::new()\n        .server(|r| r.viewset(\"/posts\", crate::apps::posts::views::viewset()))"
+        content: "    let router = UnifiedRouter::new()\n        .server(|r| r.viewset(\"/posts\", crate::apps::posts::views::viewset()));"
       - action: save
         path: fullstack_demo/src/config/urls.rs
       - action: waitForTimeout
@@ -637,30 +619,7 @@ demos:
         path: fullstack_demo/src/apps/posts/repositories.rs
       - action: waitForTimeout
         timeout: 1500
-      - action: open
-        path: fullstack_demo/src/apps/posts/serializers.rs
-      - action: insert
-        path: fullstack_demo/src/apps/posts/serializers.rs
-        position: end
-        insertTypingMode: character-by-character
-        insertTypingSpeed: 1
-        content: |
-
-          #[derive(serde::Deserialize, Validate)]
-          pub struct PublishInput {
-              #[validate(range(min = 1, message = "id must be a positive integer"))]
-              pub id: i64,
-          }
-
-          impl From<SharedPublishInput> for PublishInput {
-              fn from(i: SharedPublishInput) -> Self {
-                  Self { id: i.id }
-              }
-          }
-      - action: save
-        path: fullstack_demo/src/apps/posts/serializers.rs
-      - action: waitForTimeout
-        timeout: 1000
+      # PublishInput already lives in shared::types with Validate; reuse it directly.
       # Extend the project-level server_fn module with publish_post.
       - action: open
         path: fullstack_demo/src/server_fn/posts.rs
