@@ -12,25 +12,25 @@ demos:
       - action: executeTerminalCommand
         command: reinhardt-admin --version
         insertTypingMode: character-by-character
-        insertTypingSpeed: 25
+        insertTypingSpeed: 1
       - action: waitForTimeout
         timeout: 1500
       - action: executeTerminalCommand
         command: reinhardt-admin startproject fullstack_demo --with-pages
         insertTypingMode: character-by-character
-        insertTypingSpeed: 25
+        insertTypingSpeed: 1
       - action: waitForTimeout
         timeout: 2500
       - action: executeTerminalCommand
         command: cd fullstack_demo && reinhardt-admin startapp posts --with-pages
         insertTypingMode: character-by-character
-        insertTypingSpeed: 25
+        insertTypingSpeed: 1
       - action: waitForTimeout
         timeout: 2000
       - action: executeTerminalCommand
         command: reinhardt-admin startapp users --with-pages
         insertTypingMode: character-by-character
-        insertTypingSpeed: 25
+        insertTypingSpeed: 1
       - action: waitForTimeout
         timeout: 2000
       # Silently warm the cargo cache for `manage` in the background so that
@@ -70,7 +70,7 @@ demos:
         path: fullstack_demo/settings/local.toml
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           [core]
           secret_key = "local-dev-secret-change-in-production"
@@ -95,7 +95,7 @@ demos:
         path: fullstack_demo/src/apps/users/models.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           use chrono::{DateTime, Utc};
           use reinhardt::prelude::*;
@@ -147,7 +147,7 @@ demos:
         path: fullstack_demo/src/apps/posts/models.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           use chrono::{DateTime, Utc};
           use reinhardt::db::associations::ForeignKeyField;
@@ -218,7 +218,7 @@ demos:
       - action: executeTerminalCommand
         command: cargo run --bin manage -- makemigrations posts --force-empty-state
         insertTypingMode: character-by-character
-        insertTypingSpeed: 25
+        insertTypingSpeed: 1
       # Cargo cache was pre-warmed in Scene 3 (.demo/scripts/warmup_cargo.sh),
       # so `cargo run --bin manage -- makemigrations` normally finishes within
       # Demo Time's internal 5s shell-integration wait. This extra buffer
@@ -237,7 +237,7 @@ demos:
       - action: executeTerminalCommand
         command: cargo run --bin manage -- migrate
         insertTypingMode: character-by-character
-        insertTypingSpeed: 25
+        insertTypingSpeed: 1
       # Incremental rebuild + migrate; short since cache is warm.
       - action: waitForTimeout
         timeout: 4000
@@ -250,7 +250,7 @@ demos:
         path: fullstack_demo/src/apps/posts/serializers.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           use reinhardt::Validate;
           use super::models::Post;
@@ -307,7 +307,7 @@ demos:
         path: fullstack_demo/src/shared/types.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           #[derive(Debug, Clone, Serialize, Deserialize)]
           pub struct PostSerializer {
@@ -332,7 +332,7 @@ demos:
         path: fullstack_demo/src/apps/posts/views.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           use reinhardt::prelude::*;
           use reinhardt::views::viewsets::{FilterConfig, OrderingConfig, PaginationConfig};
@@ -357,7 +357,7 @@ demos:
         startPlaceholder: 'let router = '
         endPlaceholder: ';'
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: "UnifiedRouter::new()\n        .server(|r| r.viewset(\"/posts\", crate::apps::posts::views::viewset()))"
       - action: save
         path: fullstack_demo/src/config/urls.rs
@@ -374,7 +374,7 @@ demos:
         path: fullstack_demo/src/lib.rs
         startPlaceholder: 'pub mod shared;'
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
 
           // Cross-cfg: server_fn stubs on WASM, impls on server
@@ -387,7 +387,7 @@ demos:
         path: fullstack_demo/src/server_fn.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           //! Server functions callable from both WASM (HTTP stubs) and server (impls).
 
@@ -400,7 +400,7 @@ demos:
         path: fullstack_demo/src/server_fn/posts.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           use reinhardt::pages::server_fn::{server_fn, ServerFnError};
 
@@ -440,7 +440,7 @@ demos:
         path: fullstack_demo/src/client.rs
         startPlaceholder: 'mod state;'
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
 
           pub mod pages;
@@ -453,7 +453,7 @@ demos:
         path: fullstack_demo/src/client/pages.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           //! Pages module — posts + other page components
 
@@ -466,7 +466,7 @@ demos:
         path: fullstack_demo/src/client/pages/posts_page.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           use reinhardt::pages::prelude::*;
           use crate::server_fn::posts::list_posts;
@@ -516,7 +516,7 @@ demos:
         path: fullstack_demo/src/client/router.rs
         startPlaceholder: 'Router::new()'
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |2
 
                   .route("/", super::pages::posts_page::posts_page)
@@ -531,7 +531,7 @@ demos:
       - action: executeTerminalCommand
         command: cargo run --bin manage -- runserver
         insertTypingMode: character-by-character
-        insertTypingSpeed: 25
+        insertTypingSpeed: 1
       - action: waitForTimeout
         timeout: 4000
       - action: openWebsite
@@ -547,7 +547,7 @@ demos:
         path: fullstack_demo/src/apps/posts/admin.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           use reinhardt::admin;
           use super::models::Post;
@@ -565,7 +565,7 @@ demos:
       - action: executeTerminalCommand
         command: cargo run --bin manage -- createsuperuser
         insertTypingMode: character-by-character
-        insertTypingSpeed: 25
+        insertTypingSpeed: 1
       - action: waitForTimeout
         timeout: 3000
       - action: openWebsite
@@ -582,7 +582,7 @@ demos:
         path: fullstack_demo/src/config/settings.rs
         startPlaceholder: 'use std::env;'
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
 
           #[settings(fragment = true, section = "auth")]
@@ -594,7 +594,7 @@ demos:
         startPlaceholder: '#[settings(core: CoreSettings)]'
         endPlaceholder: 'pub struct ProjectSettings;'
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           #[settings(core: CoreSettings, auth: AuthSettings)]
           pub struct ProjectSettings;
@@ -608,7 +608,7 @@ demos:
         path: fullstack_demo/src/apps/posts/repositories.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
           use reinhardt::prelude::*;
           use reinhardt::di::injectable_factory;
@@ -643,7 +643,7 @@ demos:
         path: fullstack_demo/src/apps/posts/serializers.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
 
           #[derive(serde::Deserialize, Validate)]
@@ -668,7 +668,7 @@ demos:
         path: fullstack_demo/src/server_fn/posts.rs
         position: end
         insertTypingMode: character-by-character
-        insertTypingSpeed: 3
+        insertTypingSpeed: 1
         content: |
 
           #[server_fn]
