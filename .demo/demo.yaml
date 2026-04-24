@@ -102,7 +102,7 @@ demos:
           use reinhardt::{Argon2Hasher, core::macros::user};
           use serde::{Deserialize, Serialize};
 
-          #[user(hasher = Argon2Hasher, username_field = "email", full = true)]
+          #[user(hasher = Argon2Hasher, username_field = "email")]
           #[model(app_label = "users", table_name = "auth_user")]
           #[derive(Serialize, Deserialize)]
           pub struct User {
@@ -112,7 +112,7 @@ demos:
               #[field(max_length = 150, unique = true)]
               pub username: String,
 
-              #[field(max_length = 255, unique = true, email)]
+              #[field(max_length = 255, unique = true, email = true)]
               pub email: String,
 
               #[field(max_length = 255)]
