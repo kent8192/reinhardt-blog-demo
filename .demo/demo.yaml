@@ -355,9 +355,11 @@ demos:
       - action: insert
         path: fullstack_demo/src/lib.rs
         startPlaceholder: 'pub mod shared;'
+        endPlaceholder: 'pub mod shared;'
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
-        content: |
+        content: |-
+          pub mod shared;
 
           // Cross-cfg: server_fn stubs on WASM, impls on server
           pub mod server_fn;
@@ -371,8 +373,6 @@ demos:
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
         content: |
-          //! Server functions callable from both WASM (HTTP stubs) and server (impls).
-
           pub mod posts;
       - action: save
         path: fullstack_demo/src/server_fn.rs
@@ -421,9 +421,11 @@ demos:
       - action: insert
         path: fullstack_demo/src/client.rs
         startPlaceholder: 'mod state;'
+        endPlaceholder: 'mod state;'
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
-        content: |
+        content: |-
+          mod state;
 
           pub mod pages;
       - action: save
@@ -497,10 +499,11 @@ demos:
       - action: insert
         path: fullstack_demo/src/client/router.rs
         startPlaceholder: 'Router::new()'
+        endPlaceholder: 'Router::new()'
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
-        content: |2
-
+        content: |-
+          Router::new()
                   .route("/", super::pages::posts_page::posts_page)
       - action: save
         path: fullstack_demo/src/client/router.rs
@@ -563,9 +566,11 @@ demos:
       - action: insert
         path: fullstack_demo/src/config/settings.rs
         startPlaceholder: 'use std::env;'
+        endPlaceholder: 'use std::env;'
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
-        content: |
+        content: |-
+          use std::env;
 
           #[settings(fragment = true, section = "auth")]
           pub struct AuthSettings {
