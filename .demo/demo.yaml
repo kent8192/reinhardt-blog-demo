@@ -102,7 +102,7 @@ demos:
           use reinhardt::{Argon2Hasher, core::macros::user};
           use serde::{Deserialize, Serialize};
 
-          #[user(hasher = Argon2Hasher, username_field = "email")]
+          #[user(hasher = Argon2Hasher, username_field = "email", full = true)]
           #[model(app_label = "users", table_name = "auth_user")]
           #[derive(Serialize, Deserialize)]
           pub struct User {
@@ -124,6 +124,7 @@ demos:
               #[field(default = false)]
               pub is_superuser: bool,
 
+              #[field(include_in_new = false)]
               pub last_login: Option<DateTime<Utc>>,
           }
       - action: save
@@ -133,7 +134,7 @@ demos:
       - action: highlight
         path: fullstack_demo/src/apps/users/models.rs
         startPlaceholder: '#[user('
-        endPlaceholder: '}'
+        endPlaceholder: 'pub last_login: Option<DateTime<Utc>>,'
         highlightWholeLine: true
         zoom: 1.3
       - action: waitForTimeout
@@ -149,7 +150,7 @@ demos:
         insertTypingSpeed: 25
         content: |
           use chrono::{DateTime, Utc};
-          use reinhardt::associations::ForeignKeyField;
+          use reinhardt::db::associations::ForeignKeyField;
           use reinhardt::prelude::*;
           use serde::{Deserialize, Serialize};
 
