@@ -30,3 +30,38 @@
 //!     pub created_at: chrono::DateTime<chrono::Utc>,
 //! }
 //! ```
+use chrono::{DateTime, Utc};
+use reinhardt::db::associations::ForeignKeyField;
+use reinhardt::prelude::*;
+use serde::{Deserialize, Serialize};
+
+use crate::apps::users::models::User;
+
+#[model(app_label = "posts", table_name = "posts")]
+#[derive(Serialize, Deserialize)]
+pub struct Post {
+    #[field(primary_key = true)]
+    pub id: i64,
+
+    #[rel(foreign_key, on_delete = Cascade, related_name = "posts")]
+    pub author: ForeignKeyField<User>,
+
+    #[field(max_length = 200)]
+    pub title: String,
+
+    #[field(max_length = 10000)]
+    pub body: String,
+
+    #[field(default = false)]
+    pub published: bool,
+
+    #[field(auto_now_add = true)]
+    pub created_at: DateTime<Utc>,
+}
+
+impl Post {
+    /// Short preview of the post body (first 140 chars).
+    pub fn summary(&self) -> String {
+        self.body.chars().take(140).collect()
+    }
+}
