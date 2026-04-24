@@ -79,9 +79,60 @@ demos:
         path: fullstack_demo/settings/local.toml
       - action: waitForTimeout
         timeout: 2000
-  - title: 'Scene 4: Define Post + User models (4:00–5:30)'
-    description: Type the Post struct in models.rs, then add a domain method via an ordinary impl block. Mirror the pattern for the User model.
+  - title: 'Scene 4: Define User + Post models (4:00–5:30)'
+    description: Define the User model first (needed as a FK target), then the Post model with an author FK referencing User. Add a domain method via an ordinary impl block.
     steps:
+      - action: open
+        path: fullstack_demo/src/apps/users/models.rs
+      - action: insert
+        path: fullstack_demo/src/apps/users/models.rs
+        position: end
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 25
+        content: |
+          use chrono::{DateTime, Utc};
+          use reinhardt::prelude::*;
+          use reinhardt::{Argon2Hasher, core::macros::user};
+          use serde::{Deserialize, Serialize};
+
+          #[user(hasher = Argon2Hasher, username_field = "email")]
+          #[model(app_label = "users", table_name = "auth_user")]
+          #[derive(Serialize, Deserialize)]
+          pub struct User {
+              #[field(primary_key = true)]
+              pub id: i64,
+
+              #[field(max_length = 150, unique = true)]
+              pub username: String,
+
+              #[field(max_length = 255, unique = true, email)]
+              pub email: String,
+
+              #[field(max_length = 255)]
+              pub password_hash: Option<String>,
+
+              #[field(default = true)]
+              pub is_active: bool,
+
+              #[field(default = false)]
+              pub is_superuser: bool,
+
+              pub last_login: Option<DateTime<Utc>>,
+          }
+      - action: save
+        path: fullstack_demo/src/apps/users/models.rs
+      - action: waitForTimeout
+        timeout: 1200
+      - action: highlight
+        path: fullstack_demo/src/apps/users/models.rs
+        startPlaceholder: '#[user('
+        endPlaceholder: '}'
+        highlightWholeLine: true
+        zoom: 1.3
+      - action: waitForTimeout
+        timeout: 2000
+      - action: unselect
+        path: fullstack_demo/src/apps/users/models.rs
       - action: open
         path: fullstack_demo/src/apps/posts/models.rs
       - action: insert
@@ -94,11 +145,16 @@ demos:
           use reinhardt::prelude::*;
           use serde::{Deserialize, Serialize};
 
+          use crate::apps::users::models::User;
+
           #[model(app_label = "posts", table_name = "posts")]
           #[derive(Serialize, Deserialize)]
           pub struct Post {
               #[field(primary_key = true)]
               pub id: i64,
+
+              #[field(foreign_key = User, on_delete = "CASCADE")]
+              pub author: i64,
 
               #[field(max_length = 200)]
               pub title: String,
@@ -125,54 +181,14 @@ demos:
         timeout: 1200
       - action: highlight
         path: fullstack_demo/src/apps/posts/models.rs
-        startPlaceholder: '#[model'
-        endPlaceholder: '"posts")]'
-        zoom: 1.5
+        startPlaceholder: '#[model('
+        endPlaceholder: '}'
+        highlightWholeLine: true
+        zoom: 1.3
       - action: waitForTimeout
         timeout: 2000
       - action: unselect
         path: fullstack_demo/src/apps/posts/models.rs
-      - action: open
-        path: fullstack_demo/src/apps/users/models.rs
-      - action: insert
-        path: fullstack_demo/src/apps/users/models.rs
-        position: end
-        insertTypingMode: character-by-character
-        insertTypingSpeed: 25
-        content: |
-          use chrono::{DateTime, Utc};
-          use reinhardt::prelude::*;
-          use reinhardt::{Argon2Hasher, core::macros::user};
-          use serde::{Deserialize, Serialize};
-
-          #[user(hasher = Argon2Hasher, username_field = "email")]
-          #[model(app_label = "users", table_name = "auth_user")]
-          #[derive(Serialize, Deserialize)]
-          pub struct User {
-              #[field(primary_key = true)]
-              pub id: i64,
-
-              #[field(max_length = 150, unique = true)]
-              pub username: String,
-
-              #[field(max_length = 255, unique = true)]
-              pub email: String,
-
-              #[field(max_length = 255)]
-              pub password_hash: Option<String>,
-
-              #[field(default = true)]
-              pub is_active: bool,
-
-              #[field(default = false)]
-              pub is_superuser: bool,
-
-              pub last_login: Option<DateTime<Utc>>,
-          }
-      - action: save
-        path: fullstack_demo/src/apps/users/models.rs
-      - action: waitForTimeout
-        timeout: 1200
   - title: 'Scene 5: Migrations (5:30–6:30)'
     description: makemigrations → migrate → verify schema. SQLite keeps the loop fast and Docker-free.
     steps:
