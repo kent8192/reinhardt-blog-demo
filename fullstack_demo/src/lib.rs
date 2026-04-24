@@ -15,6 +15,10 @@ pub mod client;
 // Shared types (both WASM and server)
 pub mod shared;
 
+// Cross-cfg: server_fn stubs on WASM, impls on server
+pub mod server_fn;
+
+
 // Re-export commonly used items
 #[cfg(server)]
 pub use config::settings::get_settings;

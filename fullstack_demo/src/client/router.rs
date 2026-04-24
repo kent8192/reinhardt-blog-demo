@@ -12,7 +12,8 @@ pub use reinhardt::pages::with_router;
 ///
 /// Called once by [`super::bootstrap`] via `ClientLauncher::router(init_router)`.
 pub fn init_router() -> Router {
-	Router::new()
+        .route("/", super::pages::posts_page::posts_page)
+
 		// Add routes here, e.g.:
 		// .route("/", || home_page())
 		// .route("/about/", || about_page())
