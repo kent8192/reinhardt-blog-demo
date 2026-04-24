@@ -8,6 +8,15 @@ pub fn migration() -> Migration {
             name: "posts".to_string(),
             columns: vec![
                 ColumnDefinition {
+                    name: "author_id".to_string(),
+                    type_definition: FieldType::Uuid,
+                    not_null: false,
+                    unique: false,
+                    primary_key: false,
+                    auto_increment: false,
+                    default: None,
+                },
+                ColumnDefinition {
                     name: "body".to_string(),
                     type_definition: FieldType::VarChar(10000u32),
                     not_null: true,
