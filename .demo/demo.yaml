@@ -309,8 +309,6 @@ demos:
         insertTypingMode: character-by-character
         insertTypingSpeed: 25
         content: |
-          use serde::{Deserialize, Serialize};
-
           #[derive(Debug, Clone, Serialize, Deserialize)]
           pub struct PostSerializer {
               pub id: i64,
@@ -344,9 +342,9 @@ demos:
               ModelViewSet::new("posts")
                   .with_pagination(PaginationConfig::page_number(10, Some(100)))
                   .with_filters(FilterConfig::new()
-                      .with_filterable_fields(vec!["published".into(), "title".into()]))
+                      .with_filterable_fields(vec!["published".to_string(), "title".to_string()]))
                   .with_ordering(OrderingConfig::new()
-                      .with_ordering_fields(vec!["created_at".into(), "title".into()]))
+                      .with_ordering_fields(vec!["created_at".to_string(), "title".to_string()]))
           }
       - action: save
         path: fullstack_demo/src/apps/posts/views.rs
@@ -356,12 +354,10 @@ demos:
         path: fullstack_demo/src/config/urls.rs
       - action: insert
         path: fullstack_demo/src/config/urls.rs
-        startPlaceholder: 'let router = UnifiedRouter::new();'
+        startPlaceholder: 'UnifiedRouter::new()'
         insertTypingMode: character-by-character
         insertTypingSpeed: 30
-        content: |2
-
-              let router = router.server(|r| r.viewset("/posts", crate::apps::posts::views::viewset()));
+        content: "\n        .server(|r| r.viewset(\"/posts\", crate::apps::posts::views::viewset()))"
       - action: save
         path: fullstack_demo/src/config/urls.rs
       - action: waitForTimeout
