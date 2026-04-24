@@ -1,4 +1,4 @@
-//! Views module for posts app (Pages)
+//! Views module for users app (Pages)
 //!
 //! Define ViewSets here. Each `pub mod` declaration corresponds to a file
 //! under the `views/` directory.
@@ -17,8 +17,8 @@
 //! use reinhardt::viewset;
 //!
 //! // Import your model here
-//! // use crate::models::Posts;
+//! // use crate::models::Users;
 //!
 //! #[viewset]
-//! pub struct PostsViewSet;
+//! pub struct UsersViewSet;
 //! ```

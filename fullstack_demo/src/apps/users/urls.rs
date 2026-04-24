@@ -21,4 +21,7 @@ use crate::config::apps::InstalledApp;
 #[url_patterns(InstalledApp::users, mode = unified)]
 pub fn unified_url_patterns() -> UnifiedRouter {
     UnifiedRouter::new()
+    // Example:
+    //     .server(|s| s.endpoint(views::index))
+    //     .client(|c| c.named_route("home", "/", || {}))
 }

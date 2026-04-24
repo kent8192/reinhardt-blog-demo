@@ -1,7 +1,6 @@
-//! Shared types used by both client and server
+//! posts - Shared types
 //!
-//! These types are serializable and can be sent between the WASM client
-//! and the Rust server via server functions.
+//! Types shared between client and server.
 
 use serde::{Deserialize, Serialize};
 

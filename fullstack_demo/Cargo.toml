@@ -12,7 +12,7 @@ name = "manage"
 path = "src/bin/manage.rs"
 
 [dependencies]
-reinhardt = { version = "0.1.0-rc.20", package = "reinhardt-web", features = [
+reinhardt = { version = "0.1.0-rc.21", package = "reinhardt-web", features = [
 	"full",
 	"admin",  # Admin panel functionality (includes reinhardt-pages)
 ] }
@@ -56,6 +56,6 @@ reqwest = { version = "0.12", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 
 [dev-dependencies.reinhardt]
-version = "0.1.0-rc.20"
+version = "0.1.0-rc.21"
 package = "reinhardt-web"
 features = ["full", "test", "testcontainers"]

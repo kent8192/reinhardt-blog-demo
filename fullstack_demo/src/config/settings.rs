@@ -33,12 +33,8 @@ use reinhardt::conf::settings::sources::{DefaultSource, LowPriorityEnvSource, To
 use reinhardt::settings;
 use std::env;
 
-#[settings(fragment = true, section = "auth")]
-pub struct AuthSettings {
-    pub signing_key: String,
-}
-
-#[settings(core: CoreSettings, auth: AuthSettings)]
+// Add fragments to extend settings: e.g. `#[settings(core: CoreSettings | cache: CacheSettings)]`
+#[settings(core: CoreSettings)]
 pub struct ProjectSettings;
 
 /// Get settings based on environment variable
