@@ -33,6 +33,13 @@ demos:
         insertTypingSpeed: 50
       - action: waitForTimeout
         timeout: 2000
+      # Silently warm the cargo cache for `manage` in the background so that
+      # Scene 5's `cargo run` returns within Demo Time's 5s shell-integration
+      # wait window. The script detaches and returns immediately.
+      - action: executeScript
+        id: warmup
+        command: bash
+        path: .demo/scripts/warmup_cargo.sh
       - action: open
         path: fullstack_demo/src/apps/posts.rs
       - action: highlight
@@ -200,8 +207,12 @@ demos:
         command: cargo run --bin manage -- makemigrations posts --force-empty-state
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
+      # Cargo cache was pre-warmed in Scene 3 (.demo/scripts/warmup_cargo.sh),
+      # so `cargo run --bin manage -- makemigrations` normally finishes within
+      # Demo Time's internal 5s shell-integration wait. This extra buffer
+      # covers slow disks or incidental cache invalidation.
       - action: waitForTimeout
-        timeout: 2500
+        timeout: 8000
       - action: open
         path: fullstack_demo/migrations/posts/0001_initial.rs
       - action: highlight
@@ -215,8 +226,9 @@ demos:
         command: cargo run --bin manage -- migrate
         insertTypingMode: character-by-character
         insertTypingSpeed: 50
+      # Incremental rebuild + migrate; short since cache is warm.
       - action: waitForTimeout
-        timeout: 2000
+        timeout: 4000
   - title: 'Scene 6: Serializer + ViewSet (6:30–8:00)'
     description: Author PostSerializer with Validate, declare a ModelViewSet, and wire it into the project UnifiedRouter so GET /posts/ goes live.
     steps:
