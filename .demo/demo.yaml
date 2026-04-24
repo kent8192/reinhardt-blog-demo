@@ -14,25 +14,25 @@ demos:
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 8000
       - action: executeTerminalCommand
         command: reinhardt-admin startproject fullstack_demo --with-pages
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
       - action: waitForTimeout
-        timeout: 2500
+        timeout: 11000
       - action: executeTerminalCommand
         command: cd fullstack_demo && reinhardt-admin startapp posts --with-pages
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
       - action: waitForTimeout
-        timeout: 2000
+        timeout: 15000
       - action: executeTerminalCommand
         command: reinhardt-admin startapp users --with-pages
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
       - action: waitForTimeout
-        timeout: 2000
+        timeout: 3000
       # Silently warm the cargo cache for `manage` in the background so that
       # Scene 5's `cargo run` returns within Demo Time's 5s shell-integration
       # wait window. The script detaches and returns immediately.
@@ -49,7 +49,7 @@ demos:
         highlightWholeLine: true
         zoom: 1.5
       - action: waitForTimeout
-        timeout: 2500
+        timeout: 18000
       # Quick tour: the rc.20 urls scaffold is a directory (urls.rs + urls/{server_urls,client_urls,ws_urls}.rs).
       - action: open
         path: fullstack_demo/src/apps/posts/urls.rs
@@ -60,7 +60,7 @@ demos:
         highlightWholeLine: true
         zoom: 1.4
       - action: waitForTimeout
-        timeout: 2000
+        timeout: 12000
       - action: unselect
         path: fullstack_demo/src/apps/posts/urls.rs
       # Fill in local settings — matches the shape ProjectSettings expects in Scene 9.
@@ -85,7 +85,7 @@ demos:
       - action: save
         path: fullstack_demo/settings/local.toml
       - action: waitForTimeout
-        timeout: 2000
+        timeout: 15000
   - title: 'Scene 4: Define User + Post models (4:00–5:30)'
     description: Define the User model first (needed as a FK target), then the Post model with an author FK referencing User. Add a domain method via an ordinary impl block.
     steps:
@@ -130,7 +130,7 @@ demos:
       - action: save
         path: fullstack_demo/src/apps/users/models.rs
       - action: waitForTimeout
-        timeout: 1200
+        timeout: 10000
       - action: highlight
         path: fullstack_demo/src/apps/users/models.rs
         startPlaceholder: '#[user('
@@ -138,7 +138,7 @@ demos:
         highlightWholeLine: true
         zoom: 1.3
       - action: waitForTimeout
-        timeout: 2000
+        timeout: 10000
       - action: unselect
         path: fullstack_demo/src/apps/users/models.rs
       - action: open
@@ -187,7 +187,7 @@ demos:
       - action: save
         path: fullstack_demo/src/apps/posts/models.rs
       - action: waitForTimeout
-        timeout: 1200
+        timeout: 25000
       - action: highlight
         path: fullstack_demo/src/apps/posts/models.rs
         startPlaceholder: '#[rel(foreign_key'
@@ -195,7 +195,7 @@ demos:
         highlightWholeLine: true
         zoom: 1.4
       - action: waitForTimeout
-        timeout: 2000
+        timeout: 15000
       - action: unselect
         path: fullstack_demo/src/apps/posts/models.rs
       - action: highlight
@@ -205,7 +205,7 @@ demos:
         highlightWholeLine: true
         zoom: 1.3
       - action: waitForTimeout
-        timeout: 2000
+        timeout: 15000
       - action: unselect
         path: fullstack_demo/src/apps/posts/models.rs
   - title: 'Scene 5: Migrations (5:30–6:30)'
@@ -224,7 +224,7 @@ demos:
       # Demo Time's internal 5s shell-integration wait. This extra buffer
       # covers slow disks or incidental cache invalidation.
       - action: waitForTimeout
-        timeout: 8000
+        timeout: 20000
       - action: open
         path: fullstack_demo/migrations/posts/0001_initial.rs
       - action: highlight
@@ -233,14 +233,14 @@ demos:
         endPlaceholder: '}'
         highlightWholeLine: true
       - action: waitForTimeout
-        timeout: 2500
+        timeout: 15000
       - action: executeTerminalCommand
         command: cargo run --bin manage -- migrate
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
       # Incremental rebuild + migrate; short since cache is warm.
       - action: waitForTimeout
-        timeout: 4000
+        timeout: 16000
   - title: 'Scene 6: Serializer + ViewSet (6:30–8:00)'
     description: Author PostSerializer with Validate, declare a ModelViewSet, and wire it into the project UnifiedRouter so GET /posts/ goes live.
     steps:
@@ -269,7 +269,7 @@ demos:
       - action: save
         path: fullstack_demo/src/apps/posts/serializers.rs
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 25000
       # Shared types cross the client/server boundary — declare the serializable DTOs once.
       - action: open
         path: fullstack_demo/src/shared/types.rs
@@ -306,7 +306,7 @@ demos:
       - action: save
         path: fullstack_demo/src/shared/types.rs
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 15000
       - action: open
         path: fullstack_demo/src/apps/posts/views.rs
       - action: insert
@@ -331,7 +331,7 @@ demos:
       - action: save
         path: fullstack_demo/src/apps/posts/views.rs
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 35000
       - action: open
         path: fullstack_demo/src/config/urls.rs
       - action: insert
@@ -344,7 +344,7 @@ demos:
       - action: save
         path: fullstack_demo/src/config/urls.rs
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 15000
   - title: 'Scene 7: WASM frontend page (8:00–10:30)'
     description: |
       Write a typed server_fn RPC at the project root (cross-cfg so the WASM client can reach the generated HTTP stub), then build a page!-based WASM page that calls it via use_action.
@@ -414,7 +414,7 @@ demos:
       - action: save
         path: fullstack_demo/src/server_fn/posts.rs
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 30000
       # Add the pages module to client.rs (2024 edition — no mod.rs).
       - action: open
         path: fullstack_demo/src/client.rs
@@ -481,14 +481,14 @@ demos:
       - action: save
         path: fullstack_demo/src/client/pages/posts_page.rs
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 30000
       - action: highlight
         path: fullstack_demo/src/client/pages/posts_page.rs
         startPlaceholder: 'page!(|ls:'
         endPlaceholder: '})(ls)'
         zoom: 1.4
       - action: waitForTimeout
-        timeout: 2500
+        timeout: 25000
       - action: unselect
         path: fullstack_demo/src/client/pages/posts_page.rs
       # Wire the page into the client router.
@@ -505,7 +505,7 @@ demos:
       - action: save
         path: fullstack_demo/src/client/router.rs
       - action: waitForTimeout
-        timeout: 1000
+        timeout: 5000
       - action: executeTerminalCommand
         command: '[ "$(basename "$PWD")" = "fullstack_demo" ] || cd fullstack_demo'
       - action: waitForTimeout
@@ -515,11 +515,11 @@ demos:
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
       - action: waitForTimeout
-        timeout: 4000
+        timeout: 25000
       - action: openWebsite
         url: http://127.0.0.1:8000/
       - action: waitForTimeout
-        timeout: 6000
+        timeout: 15000
   - title: 'Scene 8: Admin UI (10:30–12:00)'
     description: Declare PostAdmin with the list_display shorthand, create a superuser, tour /admin/ in the browser.
     steps:
@@ -539,7 +539,7 @@ demos:
       - action: save
         path: fullstack_demo/src/apps/posts/admin.rs
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 18000
       - action: executeTerminalCommand
         command: '[ "$(basename "$PWD")" = "fullstack_demo" ] || cd fullstack_demo'
       - action: waitForTimeout
@@ -549,11 +549,11 @@ demos:
         insertTypingMode: character-by-character
         insertTypingSpeed: 1
       - action: waitForTimeout
-        timeout: 3000
+        timeout: 13000
       - action: openWebsite
         url: http://127.0.0.1:8000/admin/
       - action: waitForTimeout
-        timeout: 8000
+        timeout: 45000
   - title: 'Scene 9: Auth settings + DI factory + server_fn (12:00–13:30)'
     description: |
       Compose AuthSettings into ProjectSettings via #[settings], register PostRepository via #[injectable_factory], then expose a publish_post #[server_fn] callable from both curl and the WASM frontend.
@@ -583,7 +583,7 @@ demos:
       - action: save
         path: fullstack_demo/src/config/settings.rs
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 18000
       - action: open
         path: fullstack_demo/src/apps/posts/repositories.rs
       - action: insert
@@ -618,7 +618,7 @@ demos:
       - action: save
         path: fullstack_demo/src/apps/posts/repositories.rs
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 12000
       # PublishInput already lives in shared::types with Validate; reuse it directly.
       # Extend the project-level server_fn module with publish_post.
       - action: open
@@ -662,13 +662,13 @@ demos:
       - action: save
         path: fullstack_demo/src/server_fn/posts.rs
       - action: waitForTimeout
-        timeout: 1500
+        timeout: 25000
       - action: highlight
         path: fullstack_demo/src/server_fn/posts.rs
         startPlaceholder: '#[server_fn]'
         endPlaceholder: 'pub async fn publish_post('
         zoom: 1.6
       - action: waitForTimeout
-        timeout: 2500
+        timeout: 12000
       - action: unselect
         path: fullstack_demo/src/server_fn/posts.rs
