@@ -9,3 +9,6 @@ wheels/
 # Virtual environments
 .venv
 media/
+
+# Final composite renders (regenerable from moviepy.ipynb)
+out/
