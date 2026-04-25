@@ -1,0 +1,90 @@
+scene_01:
+  cache_key: 1da43812dc41b3754120c76604ae4370f08e349f99df063fde75cc792ca9d2b5
+  end: '1:30'
+  generated_at: '2026-04-24T11:21:01.499741+00:00'
+  model_id: eleven_v3
+  output_file: audio/scene_01.mp3
+  start: 0:00
+  voice_id: RL2gbGArFsmr05q4aJLj
+  voice_name: Jack
+scene_02:
+  cache_key: 4794f1b2b1197e94b1f917c9981a524e20685e6bca089779f52c8cebe2e0ca4e
+  end: '2:45'
+  generated_at: '2026-04-25T10:59:25.999812+00:00'
+  model_id: eleven_v3
+  output_file: audio/scene_02.mp3
+  start: '1:30'
+  voice_id: RL2gbGArFsmr05q4aJLj
+  voice_name: Jack
+scene_03:
+  cache_key: e67529e1da6a7aa557ea23e1888126c8720580ad8ccc51b883da35b59a467268
+  end: '4:00'
+  generated_at: '2026-04-25T10:59:32.647344+00:00'
+  model_id: eleven_v3
+  output_file: audio/scene_03.mp3
+  start: '2:45'
+  voice_id: RL2gbGArFsmr05q4aJLj
+  voice_name: Jack
+scene_04:
+  cache_key: 6fe3489262ac2fe4bb5a4027e289d6a470de9948f883c13a2952872abb19377d
+  end: '5:45'
+  generated_at: '2026-04-25T10:59:40.883858+00:00'
+  model_id: eleven_v3
+  output_file: audio/scene_04.mp3
+  start: '4:00'
+  voice_id: RL2gbGArFsmr05q4aJLj
+  voice_name: Jack
+scene_05:
+  cache_key: 45ae20d6e22f8d8b0bd62e883b24677b694b7ff44b3dc7cd6e0b60467546d163
+  end: '8:15'
+  generated_at: '2026-04-25T10:59:50.123529+00:00'
+  model_id: eleven_v3
+  output_file: audio/scene_05.mp3
+  start: '5:45'
+  voice_id: RL2gbGArFsmr05q4aJLj
+  voice_name: Jack
+scene_06:
+  cache_key: f10daf93ee5f93530e9edc6feab098579cc9e7fe13fdc6f17152b24864d1f534
+  end: '9:45'
+  generated_at: '2026-04-25T10:59:56.647354+00:00'
+  model_id: eleven_v3
+  output_file: audio/scene_06.mp3
+  start: '8:15'
+  voice_id: RL2gbGArFsmr05q4aJLj
+  voice_name: Jack
+scene_07:
+  cache_key: 4b2afa537a02eb292484103c0c7d40f9569bcd27b9782db915773da856d69986
+  end: '10:45'
+  generated_at: '2026-04-25T11:00:01.876916+00:00'
+  model_id: eleven_v3
+  output_file: audio/scene_07.mp3
+  start: '9:45'
+  voice_id: RL2gbGArFsmr05q4aJLj
+  voice_name: Jack
+scene_08:
+  cache_key: 7b345b3cedb0abd1ede9c780b516c22d372692ed1f11ebbb5d9de9384cb6ba2b
+  end: '12:15'
+  generated_at: '2026-04-25T11:00:09.485693+00:00'
+  model_id: eleven_v3
+  output_file: audio/scene_08.mp3
+  start: '10:45'
+  voice_id: RL2gbGArFsmr05q4aJLj
+  voice_name: Jack
+scene_09:
+  cache_key: 216a2d2ee2467cdae65134eadd7e6ae7ec783047dd2cc89f3fdf29abbd4f3f52
+  end: '13:30'
+  generated_at: '2026-04-25T11:00:16.049756+00:00'
+  model_id: eleven_v3
+  output_file: audio/scene_09.mp3
+  start: '12:15'
+  voice_id: RL2gbGArFsmr05q4aJLj
+  voice_name: Jack
+scene_10:
+  cache_key: bb729e1dfbaf243bb6f7d9c787ceeb98be8b3b00e2295e6d8fd4dcd5a9189e3e
+  end: '15:00'
+  generated_at: '2026-04-24T11:23:02.934846+00:00'
+  model_id: eleven_v3
+  output_file: audio/scene_10.mp3
+  start: '13:30'
+  voice_id: RL2gbGArFsmr05q4aJLj
+  voice_name: Jack
