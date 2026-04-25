@@ -9,4 +9,6 @@ dependencies = [
     "elevenlabs>=1.0.0",
     "pyyaml>=6.0",
     "ipykernel>=6.0",
+    "nbconvert>=7.16",
+    "nbclient>=0.10",
 ]
