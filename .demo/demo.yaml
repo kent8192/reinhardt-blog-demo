@@ -1,0 +1,46 @@
+title: Reinhardt Polls Demo
+description: |
+  Demo Time playback for the polls-tutorial demo video. Only Scene 3
+  (Project setup, 2:45–3:00) needs live terminal orchestration — the rest
+  of the demo is rendered Manim animation or static code shots, composited
+  in source/moviepy.ipynb.
+
+  Run from a fresh empty directory; the two scaffold commands will create
+  `polls_project/` next to this file. The recorded terminal output is
+  played back at 1.5× in the final composite (see source/conte.md, Scene 3).
+version: 2
+timer: 15
+demos:
+  - title: 'Scene 3: Scaffold polls_project + polls app (2:45–3:00)'
+    description: Two commands, back-to-back. The presenter advances on cue so the narration ("Two commands scaffold the whole thing.") lands on the first keystroke.
+    steps:
+      # Step 1 — first scaffold command. Pages template gives a Rust crate
+      # plus a WASM client in one layout (matches Scene 3 narration at 2:55).
+      - action: executeTerminalCommand
+        command: reinhardt-admin startproject polls_project --template pages
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 1
+
+      # Beat — let the success lines (orange) finish printing before the
+      # presenter clicks again. ~6s covers a clean rc.21 scaffold.
+      - action: waitForTimeout
+        timeout: 6000
+
+      # Step 2 — cd in and add the polls app. `--with-pages` wires the
+      # client-side scaffold; auto-registration in config/apps.rs is the
+      # 3:08 narration beat.
+      - action: executeTerminalCommand
+        command: cd polls_project && reinhardt-admin startapp --with-pages polls
+        insertTypingMode: character-by-character
+        insertTypingSpeed: 1
+
+      # Beat — wait for the second command's output to settle. Presenter
+      # clicks again to wipe into the Manim M3a tree animation.
+      - action: waitForTimeout
+        timeout: 6000
+
+  - title: 'Scene 3 → 4 transition: open models.rs (3:50–4:00)'
+    description: Optional "look around" beat. Opens the polls models file as the apps/polls/ pillar zooms in and wipes into Scene 4. Skip this demo if Scene 4 is being driven entirely from a Manim cut.
+    steps:
+      - action: open
+        path: polls_project/src/apps/polls/models.rs
