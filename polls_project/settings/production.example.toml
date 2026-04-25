@@ -1,0 +1,35 @@
+# Production Environment Settings for polls_project
+#
+# Copy this file to production.toml and fill in the values for your production environment.
+# production.toml is gitignored — never commit it.
+#
+# Uncomment and adjust the settings below as needed.
+
+# [core]
+# debug = false
+# secret_key = "uncomment-this-line-and-replace-with-a-long-random-string"
+# allowed_hosts = ["example.com", "www.example.com"]
+
+# [database]
+# engine = "postgresql"
+# host = "prod-db.example.com"
+# port = 5432
+# name = "polls_project_prod"
+# user = "polls_project_user"
+# password = "uncomment-this-line-and-replace-with-db-password"
+
+# [static]
+# url = "https://cdn.example.com/static/"
+# root = "/var/www/polls_project/staticfiles"
+
+# [media]
+# url = "https://cdn.example.com/media/"
+# root = "/var/www/polls_project/media"
+
+# [core.security]
+# session_cookie_secure = true
+# csrf_cookie_secure = true
+# secure_ssl_redirect = true
+# secure_hsts_seconds = 31536000
+# secure_hsts_include_subdomains = true
+# secure_hsts_preload = true
