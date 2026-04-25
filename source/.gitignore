@@ -12,3 +12,6 @@ media/
 
 # Final composite renders (regenerable from moviepy.ipynb)
 out/
+
+# Auto-generated Manim render target
+_manim_render.py
